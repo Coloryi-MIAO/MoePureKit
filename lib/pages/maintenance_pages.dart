@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../services/signature_scan_service.dart';
+import '../config/app_translations.dart';
 import '../widgets/motion_settings.dart';
 
 class FileManagerPage extends StatefulWidget {
@@ -129,11 +130,11 @@ class _FileManagerPageState extends State<FileManagerPage> {
     final name = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('重命名'),
+        title: const LocalizedText('重命名'),
         content: TextField(controller: controller, autofocus: true, decoration: const InputDecoration(labelText: '新名称')),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('取消')),
-          FilledButton(onPressed: () => Navigator.pop(context, controller.text.trim()), child: const Text('确定')),
+          TextButton(onPressed: () => Navigator.pop(context), child: const LocalizedText('取消')),
+          FilledButton(onPressed: () => Navigator.pop(context, controller.text.trim()), child: const LocalizedText('确定')),
         ],
       ),
     );
@@ -154,13 +155,13 @@ class _FileManagerPageState extends State<FileManagerPage> {
     final approved = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('确认删除？'),
-        content: Text(entry.isDirectory
+        title: const LocalizedText('确认删除？'),
+        content: LocalizedText(entry.isDirectory
             ? '将永久删除文件夹“${entry.name}”及其内容。此操作无法撤销。'
             : '将永久删除文件“${entry.name}”。此操作无法撤销。'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('取消')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('删除')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const LocalizedText('取消')),
+          FilledButton(onPressed: () => Navigator.pop(context, true), child: const LocalizedText('删除')),
         ],
       ),
     );
@@ -242,11 +243,11 @@ class _FileManagerPageState extends State<FileManagerPage> {
     final name = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('新建文件夹'),
+        title: const LocalizedText('新建文件夹'),
         content: TextField(controller: controller, autofocus: true, decoration: const InputDecoration(labelText: '文件夹名称')),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('取消')),
-          FilledButton(onPressed: () => Navigator.pop(context, controller.text.trim()), child: const Text('创建')),
+          TextButton(onPressed: () => Navigator.pop(context), child: const LocalizedText('取消')),
+          FilledButton(onPressed: () => Navigator.pop(context, controller.text.trim()), child: const LocalizedText('创建')),
         ],
       ),
     );
@@ -269,7 +270,7 @@ class _FileManagerPageState extends State<FileManagerPage> {
   }
 
   void _notify(String message) {
-    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: LocalizedText(message)));
   }
 
   String _date(DateTime value) {
@@ -290,11 +291,11 @@ class _FileManagerPageState extends State<FileManagerPage> {
           const _MaintenanceHeader(eyebrow: 'FILES', title: '文件管理', subtitle: '浏览本机目录，进行常用文件整理操作。'),
           const SizedBox(height: 16),
           Row(children: [
-            OutlinedButton.icon(onPressed: _goParent, icon: const Icon(Icons.arrow_upward, size: 16), label: const Text('上一级')),
+            OutlinedButton.icon(onPressed: _goParent, icon: const Icon(Icons.arrow_upward, size: 16), label: const LocalizedText('上一级')),
             const SizedBox(width: 8),
-            OutlinedButton.icon(onPressed: _chooseDirectory, icon: const Icon(Icons.folder_open_outlined, size: 16), label: const Text('选择目录')),
+            OutlinedButton.icon(onPressed: _chooseDirectory, icon: const Icon(Icons.folder_open_outlined, size: 16), label: const LocalizedText('选择目录')),
             const SizedBox(width: 8),
-            OutlinedButton.icon(onPressed: _createFolder, icon: const Icon(Icons.create_new_folder_outlined, size: 16), label: const Text('新建文件夹')),
+            OutlinedButton.icon(onPressed: _createFolder, icon: const Icon(Icons.create_new_folder_outlined, size: 16), label: const LocalizedText('新建文件夹')),
             const Spacer(),
             IconButton(tooltip: '刷新', onPressed: _loading ? null : _load, icon: const Icon(Icons.refresh)),
           ]),
@@ -305,16 +306,16 @@ class _FileManagerPageState extends State<FileManagerPage> {
             decoration: const InputDecoration(prefixIcon: Icon(Icons.search), hintText: '搜索当前目录', isDense: true, border: OutlineInputBorder()),
           ),
           const SizedBox(height: 8),
-          _MaintenanceCard(child: Row(children: [const Icon(Icons.folder_outlined, size: 17, color: Color(0xFF718A78)), const SizedBox(width: 8), Expanded(child: Text(_path, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11)))])),
+          _MaintenanceCard(child: Row(children: [const Icon(Icons.folder_outlined, size: 17, color: Color(0xFF718A78)), const SizedBox(width: 8), Expanded(child: LocalizedText(_path, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11)))])),
           const SizedBox(height: 10),
-          if (_limitReached) const Padding(padding: EdgeInsets.only(bottom: 6), child: Text('当前目录项目较多，仅显示前 1,200 项；可使用搜索缩小范围。', style: TextStyle(fontSize: 10, color: Color(0xFF9A805E)))),
+          if (_limitReached) const Padding(padding: EdgeInsets.only(bottom: 6), child: LocalizedText('当前目录项目较多，仅显示前 1,200 项；可使用搜索缩小范围。', style: TextStyle(fontSize: 10, color: Color(0xFF9A805E)))),
           Expanded(
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
                 : _error != null
-                    ? Center(child: Text(_error!, style: const TextStyle(color: Color(0xFFB65F56))))
+                    ? Center(child: LocalizedText(_error!, style: const TextStyle(color: Color(0xFFB65F56))))
                     : filtered.isEmpty
-                        ? const Center(child: Text('此目录为空，或没有匹配的文件。', style: TextStyle(color: Color(0xFF858C86))))
+                        ? const Center(child: LocalizedText('此目录为空，或没有匹配的文件。', style: TextStyle(color: Color(0xFF858C86))))
                         : ListView.separated(
                             itemCount: filtered.length,
                             separatorBuilder: (_, __) => const SizedBox(height: 6),
@@ -329,9 +330,9 @@ class _FileManagerPageState extends State<FileManagerPage> {
                                     child: InkWell(
                                       onTap: () => _openEntry(entry),
                                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                        Text(entry.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                                        LocalizedText(entry.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                                         const SizedBox(height: 3),
-                                        Text(entry.isDirectory ? '文件夹 · ${_date(entry.modified)}' : '${_formatBytes(entry.size)} · ${_date(entry.modified)}', style: const TextStyle(fontSize: 10, color: Color(0xFF858C86))),
+                                        LocalizedText(entry.isDirectory ? '文件夹 · ${_date(entry.modified)}' : '${_formatBytes(entry.size)} · ${_date(entry.modified)}', style: const TextStyle(fontSize: 10, color: Color(0xFF858C86))),
                                       ]),
                                     ),
                                   ),
@@ -355,10 +356,10 @@ class _FileManagerPageState extends State<FileManagerPage> {
                                       }
                                     },
                                     itemBuilder: (_) => [
-                                      const PopupMenuItem(value: 'rename', child: Text('重命名')),
-                                      const PopupMenuItem(value: 'copy', child: Text('复制到…')),
-                                      const PopupMenuItem(value: 'move', child: Text('移动到…')),
-                                      const PopupMenuItem(value: 'delete', child: Text('删除')),
+                                      const PopupMenuItem(value: 'rename', child: LocalizedText('重命名')),
+                                      const PopupMenuItem(value: 'copy', child: LocalizedText('复制到…')),
+                                      const PopupMenuItem(value: 'move', child: LocalizedText('移动到…')),
+                                      const PopupMenuItem(value: 'delete', child: LocalizedText('删除')),
                                     ],
                                   ),
                                 ]),
@@ -455,11 +456,11 @@ class _CleanupPageState extends State<CleanupPage> {
     final approved = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('确认清理临时文件？'),
-        content: Text('将尝试删除 $count 个超过 24 小时的临时文件，预计释放 ${_formatBytes(bytes)}。被系统占用或权限不足的文件会自动跳过。'),
+        title: const LocalizedText('确认清理临时文件？'),
+        content: LocalizedText('将尝试删除 $count 个超过 24 小时的临时文件，预计释放 ${_formatBytes(bytes)}。被系统占用或权限不足的文件会自动跳过。'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('取消')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('确认清理')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const LocalizedText('取消')),
+          FilledButton(onPressed: () => Navigator.pop(context, true), child: const LocalizedText('确认清理')),
         ],
       ),
     );
@@ -492,7 +493,7 @@ class _CleanupPageState extends State<CleanupPage> {
     try {
       await Process.start('explorer.exe', ['ms-settings:storage'], runInShell: false);
     } catch (error) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('无法打开存储设置：$error')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: LocalizedText('无法打开存储设置：$error')));
     }
   }
 
@@ -502,34 +503,34 @@ class _CleanupPageState extends State<CleanupPage> {
       const _MaintenanceHeader(eyebrow: 'STORAGE CARE', title: 'C 盘清理', subtitle: '先扫描与预览，再由你确认删除。'),
       const SizedBox(height: 18),
       _MaintenanceCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Row(children: [Icon(Icons.cleaning_services_outlined, color: Color(0xFF718A78)), SizedBox(width: 9), Text('安全临时文件清理', style: TextStyle(fontWeight: FontWeight.w600))]),
+        const Row(children: [Icon(Icons.cleaning_services_outlined, color: Color(0xFF718A78)), SizedBox(width: 9), LocalizedText('安全临时文件清理', style: TextStyle(fontWeight: FontWeight.w600))]),
         const SizedBox(height: 8),
-        const Text('扫描当前用户 TEMP/TMP 与 Windows Temp 目录，只列出 24 小时以前的普通文件。不会触碰个人文档、下载目录、注册表或系统组件存储。', style: TextStyle(fontSize: 11, color: Color(0xFF858C86), height: 1.5)),
+        const LocalizedText('扫描当前用户 TEMP/TMP 与 Windows Temp 目录，只列出 24 小时以前的普通文件。不会触碰个人文档、下载目录、注册表或系统组件存储。', style: TextStyle(fontSize: 11, color: Color(0xFF858C86), height: 1.5)),
         const SizedBox(height: 14),
         Wrap(spacing: 8, runSpacing: 8, children: [
-          FilledButton.icon(onPressed: _scanning || _cleaning ? null : _scan, icon: const Icon(Icons.search, size: 17), label: const Text('扫描临时文件')),
-          OutlinedButton.icon(onPressed: _cleaning || _files.isEmpty ? null : _clean, icon: const Icon(Icons.delete_outline, size: 17), label: Text(_cleaning ? '正在清理…' : '确认清理 (${_files.length})')),
-          TextButton.icon(onPressed: _openStorageSettings, icon: const Icon(Icons.settings_outlined, size: 17), label: const Text('Windows 存储设置')),
+          FilledButton.icon(onPressed: _scanning || _cleaning ? null : _scan, icon: const Icon(Icons.search, size: 17), label: const LocalizedText('扫描临时文件')),
+          OutlinedButton.icon(onPressed: _cleaning || _files.isEmpty ? null : _clean, icon: const Icon(Icons.delete_outline, size: 17), label: LocalizedText(_cleaning ? '正在清理…' : '确认清理 (${_files.length})')),
+          TextButton.icon(onPressed: _openStorageSettings, icon: const Icon(Icons.settings_outlined, size: 17), label: const LocalizedText('Windows 存储设置')),
         ]),
       ])),
       const SizedBox(height: 12),
       _MaintenanceCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Text('扫描状态', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+        const LocalizedText('扫描状态', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
         const SizedBox(height: 8),
-        Text(_status, style: const TextStyle(fontSize: 11, color: Color(0xFF737B74), height: 1.45)),
-        if (_skipped > 0) ...[const SizedBox(height: 5), Text('读取失败或无权限：$_skipped 项', style: const TextStyle(fontSize: 10, color: Color(0xFF9A805E)))],
+        LocalizedText(_status, style: const TextStyle(fontSize: 11, color: Color(0xFF737B74), height: 1.45)),
+        if (_skipped > 0) ...[const SizedBox(height: 5), LocalizedText('读取失败或无权限：$_skipped 项', style: const TextStyle(fontSize: 10, color: Color(0xFF9A805E)))],
         if (_scanning || _cleaning) ...[const SizedBox(height: 10), const LinearProgressIndicator(minHeight: 3)],
       ])),
       if (_files.isNotEmpty) ...[
         const SizedBox(height: 12),
         _MaintenanceCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text('待清理项目预览', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+          const LocalizedText('待清理项目预览', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
           const SizedBox(height: 8),
           for (final item in _files.take(12)) Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(children: [const Icon(Icons.description_outlined, size: 14, color: Color(0xFF8A928B)), const SizedBox(width: 8), Expanded(child: Text(item.path, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 10))), Text(_formatBytes(item.size), style: const TextStyle(fontSize: 10, color: Color(0xFF858C86)))]),
+            child: Row(children: [const Icon(Icons.description_outlined, size: 14, color: Color(0xFF8A928B)), const SizedBox(width: 8), Expanded(child: LocalizedText(item.path, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 10))), LocalizedText(_formatBytes(item.size), style: const TextStyle(fontSize: 10, color: Color(0xFF858C86)))]),
           ),
-          if (_files.length > 12) Text('另有 ${_files.length - 12} 项未展开', style: const TextStyle(fontSize: 10, color: Color(0xFF858C86))),
+          if (_files.length > 12) LocalizedText('另有 ${_files.length - 12} 项未展开', style: const TextStyle(fontSize: 10, color: Color(0xFF858C86))),
         ])),
       ],
     ],
@@ -723,33 +724,33 @@ try {
       const _MaintenanceHeader(eyebrow: 'SECURITY', title: '病毒查杀', subtitle: '本地 SHA-256 指纹核对 + Microsoft Defender 深度扫描。'),
       const SizedBox(height: 16),
       _MaintenanceCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Row(children: [Icon(Icons.fingerprint_outlined, color: Color(0xFF718A78)), SizedBox(width: 9), Text('本地 SHA-256 指纹库', style: TextStyle(fontWeight: FontWeight.w600))]),
+        const Row(children: [Icon(Icons.fingerprint_outlined, color: Color(0xFF718A78)), SizedBox(width: 9), LocalizedText('本地 SHA-256 指纹库', style: TextStyle(fontWeight: FontWeight.w600))]),
         const SizedBox(height: 8),
-        Text(_loadingDatabase ? '正在载入…' : '已载入 ${_signatures.length} 条指纹。支持导入本地 TXT/CSV（每行 64 位 SHA-256，可在后面附名称）。', style: const TextStyle(fontSize: 11, color: Color(0xFF858C86), height: 1.5)),
+        LocalizedText(_loadingDatabase ? '正在载入…' : '已载入 ${_signatures.length} 条指纹。支持导入本地 TXT/CSV（每行 64 位 SHA-256，可在后面附名称）。', style: const TextStyle(fontSize: 11, color: Color(0xFF858C86), height: 1.5)),
         const SizedBox(height: 10),
         Wrap(spacing: 8, runSpacing: 8, children: [
-          OutlinedButton.icon(onPressed: _loadingDatabase ? null : _importSignatures, icon: const Icon(Icons.file_upload_outlined, size: 17), label: const Text('导入指纹库')),
-          OutlinedButton.icon(onPressed: _chooseDirectory, icon: const Icon(Icons.folder_open_outlined, size: 17), label: const Text('选择扫描目录')),
-          FilledButton.icon(onPressed: _directory == null || _scanning || _defenderScanning || _loadingDatabase ? null : _scanLocal, icon: const Icon(Icons.search, size: 17), label: const Text('本地指纹扫描')),
+          OutlinedButton.icon(onPressed: _loadingDatabase ? null : _importSignatures, icon: const Icon(Icons.file_upload_outlined, size: 17), label: const LocalizedText('导入指纹库')),
+          OutlinedButton.icon(onPressed: _chooseDirectory, icon: const Icon(Icons.folder_open_outlined, size: 17), label: const LocalizedText('选择扫描目录')),
+          FilledButton.icon(onPressed: _directory == null || _scanning || _defenderScanning || _loadingDatabase ? null : _scanLocal, icon: const Icon(Icons.search, size: 17), label: const LocalizedText('本地指纹扫描')),
         ]),
-        if (_directory != null) ...[const SizedBox(height: 8), Text(_directory!, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 10, color: Color(0xFF858C86)))],
+        if (_directory != null) ...[const SizedBox(height: 8), LocalizedText(_directory!, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 10, color: Color(0xFF858C86)))],
       ])),
       const SizedBox(height: 10),
       _MaintenanceCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Row(children: [Icon(Icons.security_outlined, color: Color(0xFF718A78)), SizedBox(width: 9), Text('Microsoft Defender', style: TextStyle(fontWeight: FontWeight.w600))]),
+        const Row(children: [Icon(Icons.security_outlined, color: Color(0xFF718A78)), SizedBox(width: 9), LocalizedText('Microsoft Defender', style: TextStyle(fontWeight: FontWeight.w600))]),
         const SizedBox(height: 7),
-        const Text('通过 Microsoft Defender 官方 PowerShell cmdlet 发起所选目录的自定义扫描。启动时会显示 UAC 提权提示；扫描结果请以 Windows 安全中心的保护历史记录为准。', style: TextStyle(fontSize: 11, color: Color(0xFF858C86), height: 1.5)),
+        const LocalizedText('通过 Microsoft Defender 官方 PowerShell cmdlet 发起所选目录的自定义扫描。启动时会显示 UAC 提权提示；扫描结果请以 Windows 安全中心的保护历史记录为准。', style: TextStyle(fontSize: 11, color: Color(0xFF858C86), height: 1.5)),
         const SizedBox(height: 10),
-        FilledButton.tonalIcon(onPressed: _directory == null || _scanning || _defenderScanning ? null : _runDefender, icon: const Icon(Icons.verified_user_outlined, size: 17), label: Text(_defenderScanning ? 'Defender 扫描中…' : '运行 Defender 扫描')),
-        if (_defenderResult != null) ...[const SizedBox(height: 9), Text(_defenderResult!, style: const TextStyle(fontSize: 11, color: Color(0xFF737B74), height: 1.45))],
+        FilledButton.tonalIcon(onPressed: _directory == null || _scanning || _defenderScanning ? null : _runDefender, icon: const Icon(Icons.verified_user_outlined, size: 17), label: LocalizedText(_defenderScanning ? 'Defender 扫描中…' : '运行 Defender 扫描')),
+        if (_defenderResult != null) ...[const SizedBox(height: 9), LocalizedText(_defenderResult!, style: const TextStyle(fontSize: 11, color: Color(0xFF737B74), height: 1.45))],
       ])),
       const SizedBox(height: 10),
       _MaintenanceCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Text('扫描状态', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+        const LocalizedText('扫描状态', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
         const SizedBox(height: 7),
-        Text(_status, style: const TextStyle(fontSize: 11, color: Color(0xFF737B74), height: 1.45)),
+        LocalizedText(_status, style: const TextStyle(fontSize: 11, color: Color(0xFF737B74), height: 1.45)),
         if (_scanning || _defenderScanning) ...[const SizedBox(height: 9), const LinearProgressIndicator(minHeight: 3)],
-        if (_scanned > 0) ...[const SizedBox(height: 7), Text('已扫描 $_scanned 个文件 · 跳过 $_skipped 个', style: const TextStyle(fontSize: 10, color: Color(0xFF858C86)))],
+        if (_scanned > 0) ...[const SizedBox(height: 7), LocalizedText('已扫描 $_scanned 个文件 · 跳过 $_skipped 个', style: const TextStyle(fontSize: 10, color: Color(0xFF858C86)))],
         if (_matches.isNotEmpty) ...[
           const SizedBox(height: 10),
           for (final match in _matches) Padding(
@@ -757,13 +758,13 @@ try {
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
               const Icon(Icons.warning_amber_rounded, size: 16, color: Color(0xFFBD7653)),
               const SizedBox(width: 7),
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(match.name, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)), Text(match.path, style: const TextStyle(fontSize: 10, color: Color(0xFF858C86)), maxLines: 2, overflow: TextOverflow.ellipsis)])),
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [LocalizedText(match.name, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)), LocalizedText(match.path, style: const TextStyle(fontSize: 10, color: Color(0xFF858C86)), maxLines: 2, overflow: TextOverflow.ellipsis)])),
             ]),
           ),
         ],
       ])),
       const SizedBox(height: 8),
-      const Text('重要说明：内置特征目前包含 EICAR 测试指纹，用于验证检测链路，不是完整恶意软件库。指纹未命中不等于文件安全；请以 Defender 等专业引擎结果为准。', style: TextStyle(fontSize: 10, color: Color(0xFF9A805E), height: 1.5)),
+      const LocalizedText('重要说明：内置特征目前包含 EICAR 测试指纹，用于验证检测链路，不是完整恶意软件库。指纹未命中不等于文件安全；请以 Defender 等专业引擎结果为准。', style: TextStyle(fontSize: 10, color: Color(0xFF9A805E), height: 1.5)),
     ],
   );
 }
@@ -815,11 +816,11 @@ ConvertTo-Json -InputObject @($rows) -Compress -Depth 3
     final approved = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('需要管理员权限'),
-        content: const Text('重新扫描硬件设备需要提升权限。继续后 Windows 将显示 UAC 确认窗口。'),
+        title: const LocalizedText('需要管理员权限'),
+        content: const LocalizedText('重新扫描硬件设备需要提升权限。继续后 Windows 将显示 UAC 确认窗口。'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('取消')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('继续并请求权限')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const LocalizedText('取消')),
+          FilledButton(onPressed: () => Navigator.pop(context, true), child: const LocalizedText('继续并请求权限')),
         ],
       ),
     );
@@ -865,11 +866,11 @@ try {
     final approved = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('安装驱动？'),
-        content: Text('将通过 Windows pnputil 安装此 INF，并请求 Windows UAC 管理员授权：\n\n${selected.path}\n\n请确认来源可信、型号匹配。错误驱动可能导致设备异常。'),
+        title: const LocalizedText('安装驱动？'),
+        content: LocalizedText('将通过 Windows pnputil 安装此 INF，并请求 Windows UAC 管理员授权：\n\n${selected.path}\n\n请确认来源可信、型号匹配。错误驱动可能导致设备异常。'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('取消')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('继续并请求权限')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const LocalizedText('取消')),
+          FilledButton(onPressed: () => Navigator.pop(context, true), child: const LocalizedText('继续并请求权限')),
         ],
       ),
     );
@@ -902,11 +903,11 @@ try {
         final approved = await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('以管理员身份打开设备管理器？'),
-            content: const Text('驱动安装、卸载和设备更改通常需要管理员权限。Windows 将显示 UAC 确认窗口。'),
+            title: const LocalizedText('以管理员身份打开设备管理器？'),
+            content: const LocalizedText('驱动安装、卸载和设备更改通常需要管理员权限。Windows 将显示 UAC 确认窗口。'),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('取消')),
-              FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('继续')),
+              TextButton(onPressed: () => Navigator.pop(context, false), child: const LocalizedText('取消')),
+              FilledButton(onPressed: () => Navigator.pop(context, true), child: const LocalizedText('继续')),
             ],
           ),
         );
@@ -947,23 +948,23 @@ try {
       const SizedBox(height: 16),
       _MaintenanceCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Wrap(spacing: 8, runSpacing: 8, children: [
-          FilledButton.icon(onPressed: _loading ? null : _loadDrivers, icon: const Icon(Icons.refresh, size: 17), label: const Text('刷新驱动清单')),
-          OutlinedButton.icon(onPressed: _scanningDevices ? null : _scanDevices, icon: const Icon(Icons.devices_outlined, size: 17), label: Text(_scanningDevices ? '扫描中…' : '扫描硬件变更')),
-          OutlinedButton.icon(onPressed: _installInf, icon: const Icon(Icons.download_for_offline_outlined, size: 17), label: const Text('安装 INF 驱动')),
+          FilledButton.icon(onPressed: _loading ? null : _loadDrivers, icon: const Icon(Icons.refresh, size: 17), label: const LocalizedText('刷新驱动清单')),
+          OutlinedButton.icon(onPressed: _scanningDevices ? null : _scanDevices, icon: const Icon(Icons.devices_outlined, size: 17), label: LocalizedText(_scanningDevices ? '扫描中…' : '扫描硬件变更')),
+          OutlinedButton.icon(onPressed: _installInf, icon: const Icon(Icons.download_for_offline_outlined, size: 17), label: const LocalizedText('安装 INF 驱动')),
         ]),
         const SizedBox(height: 8),
         Wrap(spacing: 8, runSpacing: 8, children: [
-          TextButton.icon(onPressed: () => _openSystemUri('devmgmt.msc'), icon: const Icon(Icons.admin_panel_settings_outlined, size: 16), label: const Text('管理员设备管理器')),
-          TextButton.icon(onPressed: () => _openSystemUri('ms-settings:windowsupdate'), icon: const Icon(Icons.system_update_alt, size: 16), label: const Text('Windows 更新')),
-          TextButton.icon(onPressed: () => _openSystemUri('https://catalog.update.microsoft.com/'), icon: const Icon(Icons.open_in_new, size: 16), label: const Text('Microsoft Update Catalog')),
+          TextButton.icon(onPressed: () => _openSystemUri('devmgmt.msc'), icon: const Icon(Icons.admin_panel_settings_outlined, size: 16), label: const LocalizedText('管理员设备管理器')),
+          TextButton.icon(onPressed: () => _openSystemUri('ms-settings:windowsupdate'), icon: const Icon(Icons.system_update_alt, size: 16), label: const LocalizedText('Windows 更新')),
+          TextButton.icon(onPressed: () => _openSystemUri('https://catalog.update.microsoft.com/'), icon: const Icon(Icons.open_in_new, size: 16), label: const LocalizedText('Microsoft Update Catalog')),
         ]),
       ])),
-      if (_status != null) ...[const SizedBox(height: 10), _MaintenanceCard(child: Text(_status!, style: const TextStyle(fontSize: 11, color: Color(0xFF737B74), height: 1.5)))],
+      if (_status != null) ...[const SizedBox(height: 10), _MaintenanceCard(child: LocalizedText(_status!, style: const TextStyle(fontSize: 11, color: Color(0xFF737B74), height: 1.5)))],
       const SizedBox(height: 10),
       if (_loading) const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator()))
-      else if (_drivers.isEmpty) const _MaintenanceCard(child: Text('尚无驱动清单。点击“刷新驱动清单”读取 Windows 当前已安装的签名驱动。', style: TextStyle(fontSize: 11, color: Color(0xFF858C86))))
+      else if (_drivers.isEmpty) const _MaintenanceCard(child: LocalizedText('尚无驱动清单。点击“刷新驱动清单”读取 Windows 当前已安装的签名驱动。', style: TextStyle(fontSize: 11, color: Color(0xFF858C86))))
       else _MaintenanceCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('已安装驱动 · ${_drivers.length}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+        LocalizedText('已安装驱动 · ${_drivers.length}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
         const SizedBox(height: 8),
         for (final driver in _drivers) Padding(
           padding: const EdgeInsets.symmetric(vertical: 7),
@@ -971,16 +972,16 @@ try {
             const Icon(Icons.memory_outlined, size: 16, color: Color(0xFF718A78)),
             const SizedBox(width: 9),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(driver['DeviceName']?.toString().trim().isNotEmpty == true ? driver['DeviceName'].toString() : '未命名设备', maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
+              LocalizedText(driver['DeviceName']?.toString().trim().isNotEmpty == true ? driver['DeviceName'].toString() : '未命名设备', maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
               const SizedBox(height: 3),
-              Text('${driver['DriverProviderName'] ?? '未知提供商'} · ${driver['DriverVersion'] ?? '未知版本'} · ${driver['InfName'] ?? ''}', maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 10, color: Color(0xFF858C86))),
+              LocalizedText('${driver['DriverProviderName'] ?? '未知提供商'} · ${driver['DriverVersion'] ?? '未知版本'} · ${driver['InfName'] ?? ''}', maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 10, color: Color(0xFF858C86))),
             ])),
             if (driver['IsSigned'] == true) const Tooltip(message: '已签名', child: Icon(Icons.verified_outlined, size: 15, color: Color(0xFF718A78))),
           ]),
         ),
       ])),
       const SizedBox(height: 8),
-      const Text('驱动安装会调用 Windows pnputil 并显示 UAC。此页不提供未经验证的第三方驱动包，也不会自动替换当前驱动。', style: TextStyle(fontSize: 10, color: Color(0xFF9A805E), height: 1.5)),
+      const LocalizedText('驱动安装会调用 Windows pnputil 并显示 UAC。此页不提供未经验证的第三方驱动包，也不会自动替换当前驱动。', style: TextStyle(fontSize: 10, color: Color(0xFF9A805E), height: 1.5)),
     ],
   );
 }
@@ -995,11 +996,11 @@ class _MaintenanceHeader extends StatelessWidget {
     duration: const Duration(milliseconds: 190),
     offset: 3,
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(eyebrow, style: const TextStyle(fontSize: 9, letterSpacing: 1.4, color: Color(0xFF8B938C))),
+      LocalizedText(eyebrow, style: const TextStyle(fontSize: 9, letterSpacing: 1.4, color: Color(0xFF8B938C))),
       const SizedBox(height: 6),
-      Text(title, style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w600)),
+      LocalizedText(title, style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w600)),
       const SizedBox(height: 6),
-      Text(subtitle, style: const TextStyle(fontSize: 11, color: Color(0xFF838A84))),
+      LocalizedText(subtitle, style: const TextStyle(fontSize: 11, color: Color(0xFF838A84))),
     ]),
   );
 }

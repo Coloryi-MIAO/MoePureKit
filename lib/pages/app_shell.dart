@@ -26,67 +26,9 @@ import '../services/startup_service.dart';
 import '../services/system_status_service.dart';
 import '../services/network_diagnostics_service.dart';
 import '../services/system_metrics_service.dart';
+import '../services/update_service.dart';
 import 'maintenance_pages.dart';
 import '../widgets/motion_settings.dart';
-
-class LocalizedText extends StatelessWidget {
-  const LocalizedText(
-    this.data, {
-    super.key,
-    this.style,
-    this.strutStyle,
-    this.textAlign,
-    this.textDirection,
-    this.locale,
-    this.softWrap,
-    this.overflow,
-    this.textScaler,
-    this.maxLines,
-    this.semanticsLabel,
-    this.textWidthBasis,
-    this.textHeightBehavior,
-    this.selectionColor,
-  });
-
-  final String data;
-  final TextStyle? style;
-  final StrutStyle? strutStyle;
-  final TextAlign? textAlign;
-  final TextDirection? textDirection;
-  final Locale? locale;
-  final bool? softWrap;
-  final TextOverflow? overflow;
-  final TextScaler? textScaler;
-  final int? maxLines;
-  final String? semanticsLabel;
-  final TextWidthBasis? textWidthBasis;
-  final TextHeightBehavior? textHeightBehavior;
-  final Color? selectionColor;
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textStyle = isDark && style?.color != null
-        ? style!.copyWith(color: Color.lerp(style!.color, Colors.white, 0.72))
-        : style;
-    return Text(
-      translateText(context, data),
-      style: textStyle,
-      strutStyle: strutStyle,
-      textAlign: textAlign,
-      textDirection: textDirection,
-      locale: locale,
-      softWrap: softWrap,
-      overflow: overflow,
-      textScaler: textScaler,
-      maxLines: maxLines,
-      semanticsLabel: semanticsLabel,
-      textWidthBasis: textWidthBasis,
-      textHeightBehavior: textHeightBehavior,
-      selectionColor: selectionColor,
-    );
-  }
-}
 
 enum AppPage {
   home('首页', Icons.home_outlined),
@@ -4261,7 +4203,7 @@ class _FileHashPageState extends State<_FileHashPage> {
                             .map(
                               (item) => DropdownMenuItem(
                                 value: item,
-                                child: Text(item),
+                                child: LocalizedText(item),
                               ),
                             )
                             .toList(),
@@ -4317,7 +4259,7 @@ class _FileHashPageState extends State<_FileHashPage> {
                 ],
                 if (_error != null) ...[
                   const SizedBox(height: 12),
-                  Text(
+                  LocalizedText(
                     _error!,
                     style: const TextStyle(color: Color(0xFFB45D55)),
                   ),
@@ -5030,7 +4972,7 @@ class _EncodingToolsPageState extends State<_EncodingToolsPage> {
               ),
               if (_error != null) ...[
                 const SizedBox(height: 9),
-                Text(_error!, style: const TextStyle(color: Color(0xFFB45D55))),
+                LocalizedText(_error!, style: const TextStyle(color: Color(0xFFB45D55))),
               ],
               const SizedBox(height: 17),
               Row(
@@ -6471,53 +6413,267 @@ class _SettingsField extends StatelessWidget {
   }
 }
 
-class _AboutPage extends StatelessWidget {
+class _AboutPage extends StatefulWidget {
   const _AboutPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return _PageScroll(
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 560),
-          child: _InfoCard(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const _AppMark(),
-                const SizedBox(height: 16),
-                const LocalizedText(
-                  AppConstants.appName,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+  State<_AboutPage> createState() => _AboutPageState();
+}
+
+class _AboutPageState extends State<_AboutPage> {
+  final _updater = UpdateService();
+  AppRelease? _release;
+  String _status = '尚未检查';
+  bool _checking = false;
+  Timer? _timer;
+  UpdateDownload? _activeDownload;
+  ReleaseAsset? _downloadedAsset;
+  String? _downloadedPath;
+  String? _downloadStatus;
+  String? _downloadError;
+  int _downloadReceived = 0;
+  int _downloadTotal = 0;
+  bool _downloading = false;
+  String? _promptedReleaseTag;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _check(silent: true));
+    _timer = Timer.periodic(
+      const Duration(hours: 6),
+      (_) => _check(silent: true, promptForUpdate: false),
+    );
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _activeDownload?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _check({bool silent = false, bool promptForUpdate = true}) async {
+    if (_checking) return;
+    var shouldPromptForPackage = false;
+    setState(() {
+      _checking = true;
+      if (!silent) _status = '正在检查更新…';
+    });
+    try {
+      final release = await _updater.checkLatest();
+      if (!mounted) return;
+      final newer = _updater.isNewer(release.version, AppConstants.version);
+      shouldPromptForPackage = promptForUpdate &&
+          newer &&
+          release.downloadableAssets.isNotEmpty &&
+          _promptedReleaseTag != release.tag;
+      setState(() {
+        _release = release;
+        _status = newer
+            ? '发现新版本：${release.version}'
+            : (_updater.isNewer(AppConstants.version, release.version)
+                ? '本地版本高于 GitHub 最新发布版本'
+                : '当前已是最新版本');
+      });
+    } catch (error) {
+      if (mounted && !silent) setState(() => _status = '检查失败：$error');
+    } finally {
+      if (mounted) setState(() => _checking = false);
+    }
+    // Ask once when the About page is opened or the user checks manually.
+    // Background polling updates the status without interrupting another page.
+    if (mounted && shouldPromptForPackage && _release != null) {
+      _promptedReleaseTag = _release!.tag;
+      await _chooseAndDownload();
+    }
+  }
+
+  String _formatSize(int bytes) {
+    if (bytes >= 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
+    if (bytes >= 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    if (bytes >= 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    return '$bytes B';
+  }
+
+  Future<void> _chooseAndDownload() async {
+    final release = _release;
+    if (release == null || _downloading) return;
+    final candidates = release.downloadableAssets;
+    if (candidates.isEmpty) {
+      setState(() => _downloadStatus = '此 Release 没有可识别的 Windows 安装包或便携包。');
+      return;
+    }
+
+    final selected = await showDialog<ReleaseAsset>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const LocalizedText('选择下载版本'),
+        content: SizedBox(
+          width: 460,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const LocalizedText('请选择要下载的版本。便携版通常解压后运行；安装版会启动 Windows 安装向导。',
+                  style: TextStyle(fontSize: 12, height: 1.45)),
+              const SizedBox(height: 10),
+              for (final asset in candidates)
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(asset.kind == ReleasePackageKind.portable
+                      ? Icons.folder_zip_outlined
+                      : Icons.install_desktop_outlined),
+                  title: LocalizedText(asset.kindLabel, style: const TextStyle(fontWeight: FontWeight.w600)),
+                  subtitle: LocalizedText('${asset.name}\n${_formatSize(asset.size)}', maxLines: 2,
+                      overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11)),
+                  isThreeLine: true,
+                  onTap: () => Navigator.of(dialogContext).pop(asset),
                 ),
-                const SizedBox(height: 8),
-                const LocalizedText(
-                  '轻量、朴素的 Windows 常用工具箱。',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF7F877F)),
-                ),
-                const SizedBox(height: 20),
-                const _AboutLine(label: '作者', value: AppConstants.author),
-                const _AboutLine(label: '版本', value: AppConstants.version),
-                const _AboutLine(label: '平台', value: 'Windows 桌面'),
-                const _AboutLine(label: '字体', value: 'Microsoft YaHei'),
-                const _AboutLine(label: '版权', value: '© 2026 Coloryi-MIAO'),
-                const SizedBox(height: 14),
-                const LocalizedText(
-                  '下载资源由用户配置并自行校验。请遵守软件许可、著作权和所在地区法律法规。',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 11,
-                    height: 1.6,
-                    color: Color(0xFF858C86),
-                  ),
-                ),
-              ],
-            ),
+            ],
           ),
         ),
+        actions: [TextButton(onPressed: () => Navigator.pop(dialogContext), child: const LocalizedText('取消'))],
       ),
     );
+    if (selected == null || !mounted) return;
+
+    final saveLocation = await getSaveLocation(suggestedName: selected.name);
+    if (saveLocation == null || !mounted) return;
+
+    final downloader = UpdateDownload();
+    setState(() {
+      _activeDownload = downloader;
+      _downloadedAsset = selected;
+      _downloadedPath = null;
+      _downloadError = null;
+      _downloadStatus = '正在准备下载…';
+      _downloadReceived = 0;
+      _downloadTotal = selected.size;
+      _downloading = true;
+    });
+    try {
+      final file = await downloader.download(
+        selected,
+        saveLocation.path,
+        onProgress: (received, total) {
+          if (!mounted) return;
+          setState(() {
+            _downloadReceived = received;
+            _downloadTotal = total;
+            _downloadStatus = '正在下载…';
+          });
+        },
+      );
+      if (!mounted) return;
+      setState(() {
+        _downloadedPath = file.path;
+        _downloadStatus = selected.digest == null
+            ? '下载完成。该 Release 未提供 API SHA-256，请按发布说明自行核对。'
+            : '下载完成，SHA-256 校验通过。';
+      });
+    } on UpdateDownloadCancelled {
+      if (mounted) setState(() => _downloadStatus = '下载已取消。');
+    } on UpdateIntegrityException {
+      if (mounted) setState(() {
+        _downloadError = '文件 SHA-256 校验失败，已删除下载文件。';
+        _downloadStatus = _downloadError!;
+      });
+    } catch (error) {
+      if (mounted) setState(() {
+        _downloadError = '下载失败：$error';
+        _downloadStatus = _downloadError!;
+      });
+    } finally {
+      if (mounted) setState(() {
+        _downloading = false;
+        _activeDownload = null;
+      });
+    }
+  }
+
+  void _cancelDownload() {
+    _activeDownload?.cancel();
+  }
+
+  Future<void> _openDownloadedFile() async {
+    final path = _downloadedPath;
+    final asset = _downloadedAsset;
+    if (path == null || asset == null) return;
+    if (asset.kind == ReleasePackageKind.portable) {
+      await Process.start('explorer.exe', ['/select,$path'], mode: ProcessStartMode.detached);
+      return;
+    }
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const LocalizedText('运行安装程序？'),
+        content: const LocalizedText('即将启动你刚下载的安装包。请确认文件来自 MoePureKit 官方 GitHub Release；Windows 可能会显示 UAC 或 SmartScreen 提示。',
+            style: TextStyle(height: 1.45)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const LocalizedText('取消')),
+          FilledButton(onPressed: () => Navigator.pop(dialogContext, true), child: const LocalizedText('运行安装程序')),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    if (path.toLowerCase().endsWith('.msi')) {
+      await Process.start('msiexec.exe', ['/i', path], mode: ProcessStartMode.detached);
+    } else {
+      await Process.start(path, [], mode: ProcessStartMode.detached);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final hasUpdate = _release != null && _updater.isNewer(_release!.version, AppConstants.version);
+    final hasPackages = _release?.downloadableAssets.isNotEmpty ?? false;
+    final progress = _downloadTotal > 0
+        ? (_downloadReceived / _downloadTotal).clamp(0.0, 1.0)
+        : null;
+    return _PageScroll(child: Center(child: ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 560), child: _InfoCard(child: Column(mainAxisSize: MainAxisSize.min, children: [
+        const _AppMark(), const SizedBox(height: 16),
+        const LocalizedText(AppConstants.appName, textAlign: TextAlign.center, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+        const SizedBox(height: 8), const LocalizedText('轻量、朴素的 Windows 常用工具箱。', style: TextStyle(fontSize: 12, color: Color(0xFF7F877F))),
+        const SizedBox(height: 20),
+        const _AboutLine(label: '作者', value: AppConstants.author),
+        const _AboutLine(label: '版本', value: AppConstants.version),
+        const _AboutLine(label: '平台', value: 'Windows 桌面'),
+        const _AboutLine(label: '许可', value: 'GNU GPL-3.0-only'),
+        const _AboutLine(label: '版权', value: '© 2026 Coloryi-MIAO'),
+        const SizedBox(height: 16),
+        Container(width: double.infinity, padding: const EdgeInsets.all(14), decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(.45), borderRadius: BorderRadius.circular(12)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [const Icon(Icons.system_update_alt, size: 18), const SizedBox(width: 8), const Expanded(child: LocalizedText('更新监测', style: TextStyle(fontWeight: FontWeight.w600))), if (hasUpdate) const Chip(label: LocalizedText('有更新', style: TextStyle(fontSize: 11)), visualDensity: VisualDensity.compact)]),
+          const SizedBox(height: 8), LocalizedText(_status, style: Theme.of(context).textTheme.bodySmall),
+          if (hasUpdate) ...[const SizedBox(height: 6), LocalizedText(_release!.name, style: const TextStyle(fontWeight: FontWeight.w600)), if (_release!.notes.isNotEmpty) LocalizedText(_release!.notes, maxLines: 4, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.bodySmall)],
+          const SizedBox(height: 10), Wrap(spacing: 8, runSpacing: 8, children: [
+            OutlinedButton.icon(onPressed: _checking ? null : () => _check(), icon: _checking ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.refresh, size: 16), label: const LocalizedText('检查更新')),
+            if (hasPackages) FilledButton.icon(onPressed: _downloading ? null : _chooseAndDownload, icon: const Icon(Icons.download, size: 16), label: LocalizedText(hasUpdate ? '下载更新' : '下载此发布版')),
+            TextButton(onPressed: () => launchUrl(Uri.parse(UpdateService.releasesUrl)), child: const LocalizedText('GitHub 发布页')),
+          ]),
+          if (_downloadStatus != null) ...[
+            const SizedBox(height: 12),
+            LocalizedText(_downloadStatus!, style: TextStyle(fontSize: 11, color: _downloadError == null ? null : Theme.of(context).colorScheme.error, height: 1.4)),
+            if (_downloading) ...[
+              const SizedBox(height: 7),
+              LinearProgressIndicator(value: progress),
+              const SizedBox(height: 4),
+              Row(children: [
+                Expanded(child: LocalizedText(_downloadTotal > 0 ? '${(progress! * 100).toStringAsFixed(1)}% · ${_formatSize(_downloadReceived)} / ${_formatSize(_downloadTotal)}' : _formatSize(_downloadReceived), style: const TextStyle(fontSize: 10))),
+                TextButton(onPressed: _cancelDownload, child: const LocalizedText('取消下载')),
+              ]),
+            ],
+            if (_downloadedPath != null && !_downloading)
+              Align(alignment: Alignment.centerLeft, child: Wrap(spacing: 8, children: [
+                FilledButton.tonalIcon(onPressed: _openDownloadedFile, icon: Icon(_downloadedAsset?.kind == ReleasePackageKind.portable ? Icons.folder_open : Icons.play_arrow), label: LocalizedText(_downloadedAsset?.kind == ReleasePackageKind.portable ? '在文件夹中显示' : '运行安装程序')),
+                TextButton(onPressed: () => Clipboard.setData(ClipboardData(text: _downloadedPath!)), child: const LocalizedText('复制文件路径')),
+              ])),
+          ],
+          const SizedBox(height: 8), const LocalizedText('进入关于页面时自动检查，应用运行期间每 6 小时检查一次。支持在应用内流式下载 Windows 便携版或安装版；不会自动运行安装程序。', style: TextStyle(fontSize: 10, height: 1.4)),
+        ])),
+        const SizedBox(height: 14), const LocalizedText('下载资源由用户配置并自行校验。第三方依赖与资源遵循各自许可。', textAlign: TextAlign.center, style: TextStyle(fontSize: 11, height: 1.6, color: Color(0xFF858C86))),
+      ])),
+    )));
   }
 }
 

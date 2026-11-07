@@ -1,6 +1,6 @@
 # MoePureKit 萌净工具箱
 
-一款面向 Windows 桌面的轻量工具箱，界面以清晰、克制和易用为目标。项目版本为 **0.3.5-beta.19**，作者 **Coloryi-MIAO**，版权 **© 2026 Coloryi-MIAO**。
+一款面向 Windows 桌面的轻量工具箱，界面以清晰、克制和易用为目标。项目版本为 **0.3.5-beta.22**，作者 **Coloryi-MIAO**，版权 **© 2026 Coloryi-MIAO**。
 
 ## 功能一览
 
@@ -10,6 +10,7 @@
 - Office 页通过微软官方 Office Deployment Tool（ODT）生成并执行部署配置；Windows 许可页可安装用户持有的正版产品密钥、检查本地 XML 票据结构，并只读诊断现有企业 KMS 客户端配置。
 - 快捷工具提供常用 Windows 控制台入口；文件校验流式计算 SHA-256；网络诊断检查 DNS 和微软 HTTPS 连通性。
 - 界面语言支持跟随系统、简体中文和 English；浅色/深色外观支持跟随系统或手动选择。
+- 关于页面提供 GitHub Release 更新监测、应用内流式下载与便携版/安装版选择。
 - 启动遮罩每次启动显示约 3 秒，并按界面语言显示文案。
 - 应用使用 Microsoft YaHei（微软雅黑）作为全局字体，不提供字体切换选项。
 - Windows 同一用户会话只允许一个 MoePureKit 实例运行。
@@ -218,3 +219,14 @@ After replacing the project files, run `flutter clean`, remove the generated
 ## Beta 18 修复
 
 - 修复 Windows 原生磁盘性能采样中的宽字符空字符字面量：`L'\0'`，避免 MSVC C4066 在 `/WX` 下导致构建失败。
+
+
+## 更新下载与许可（0.3.5-beta.22）
+
+- 关于页面进入时检查 GitHub 最新 Release，应用运行期间每 6 小时自动检查一次，并支持手动检查。
+- 检测到新版本且 Release 含有可识别的 Windows 安装包时，会自动询问下载哪个包；同一 Release 在本次应用运行期间只提示一次，也可随时手动下载。
+- 更新源固定为 `Coloryi-MIAO/MoePureKit`；按附件文件名识别便携版或安装版，并排除明确标记为 Linux/macOS 等非 Windows 的附件（以该 Release 实际发布的 Windows 附件为准）。
+- 下载直接在应用内进行，采用 HTTP 流式写盘，显示实时进度并支持取消；中断时清理 `.part` 临时文件，不会把整个安装包一次性载入内存。
+- 若 GitHub Release API 提供 SHA-256 digest，下载完成后自动校验；若未提供，会在界面提示用户按发布说明自行核对。
+- 不会静默运行安装程序。下载完成后，便携包可在资源管理器中定位；安装包需用户再次确认后才启动 Windows 安装程序。
+- 项目代码按 GNU GPL v3.0（GPL-3.0-only）发布，完整文本见 `LICENSE` / `COPYING`。第三方依赖、aria2、字体和资源仍遵循各自许可证。

@@ -1,4 +1,65 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+
+class LocalizedText extends StatelessWidget {
+  const LocalizedText(
+    this.data, {
+    super.key,
+    this.style,
+    this.strutStyle,
+    this.textAlign,
+    this.textDirection,
+    this.locale,
+    this.softWrap,
+    this.overflow,
+    this.textScaler,
+    this.maxLines,
+    this.semanticsLabel,
+    this.textWidthBasis,
+    this.textHeightBehavior,
+    this.selectionColor,
+  });
+
+  final String data;
+  final TextStyle? style;
+  final StrutStyle? strutStyle;
+  final TextAlign? textAlign;
+  final TextDirection? textDirection;
+  final Locale? locale;
+  final bool? softWrap;
+  final TextOverflow? overflow;
+  final TextScaler? textScaler;
+  final int? maxLines;
+  final String? semanticsLabel;
+  final TextWidthBasis? textWidthBasis;
+  final TextHeightBehavior? textHeightBehavior;
+  final Color? selectionColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textStyle = isDark && style?.color != null
+        ? style!.copyWith(color: Color.lerp(style!.color, Colors.white, 0.72))
+        : style;
+    return Text(
+      translateText(context, data),
+      style: textStyle,
+      strutStyle: strutStyle,
+      textAlign: textAlign,
+      textDirection: textDirection,
+      locale: locale,
+      softWrap: softWrap,
+      overflow: overflow,
+      textScaler: textScaler,
+      maxLines: maxLines,
+      semanticsLabel: semanticsLabel,
+      textWidthBasis: textWidthBasis,
+      textHeightBehavior: textHeightBehavior,
+      selectionColor: selectionColor,
+    );
+  }
+}
+
+
 
 const Map<String, String> _english = {
   '首页': 'Home',
@@ -385,12 +446,143 @@ const Map<String, String> _english = {
   'SemiAnnual': 'Semi-Annual',
   '未检测到已安装的 Office': 'No installed Office product detected',
   '未检测到 Windows 许可证信息': 'No Windows license information detected',
+  '性能': 'Performance',
+  '重试': 'Retry',
+  '选择下载版本': 'Choose download package',
+  '请选择要下载的版本。便携版通常解压后运行；安装版会启动 Windows 安装向导。': 'Choose a package to download. Portable packages usually run after extraction; installer packages launch the Windows setup wizard.',
+  '运行安装程序？': 'Run the installer?',
+  '即将启动你刚下载的安装包。请确认文件来自 MoePureKit 官方 GitHub Release；Windows 可能会显示 UAC 或 SmartScreen 提示。': 'You are about to launch the package you downloaded. Confirm it came from the official MoePureKit GitHub Release. Windows may show a UAC or SmartScreen prompt.',
+  '运行安装程序': 'Run installer',
+  '更新监测': 'Update monitor',
+  '有更新': 'Update available',
+  '检查更新': 'Check for updates',
+  '下载更新': 'Download update',
+  'GitHub 发布页': 'GitHub releases',
+  '取消下载': 'Cancel download',
+  '复制文件路径': 'Copy file path',
+  '进入关于页面时自动检查，应用运行期间每 6 小时检查一次。支持在应用内流式下载 Windows 便携版或安装版；不会自动运行安装程序。': 'Checks automatically when About opens and every 6 hours while the app is running. Stream-download Windows portable or installer packages in the app; installers are never launched automatically.',
+  '下载资源由用户配置并自行校验。第三方依赖与资源遵循各自许可。': 'Download sources are user-configured and should be verified. Third-party dependencies and resources remain under their respective licenses.',
+  '便携版': 'Portable',
+  '安装版': 'Installer',
+  '其他格式': 'Other format',
+  '正在准备下载…': 'Preparing download…',
+  '正在下载…': 'Downloading…',
+  '下载完成。该 Release 未提供 API SHA-256，请按发布说明自行核对。': 'Download complete. This release did not provide an API SHA-256 digest; verify it against the release notes.',
+  '下载完成，SHA-256 校验通过。': 'Download complete; SHA-256 verified.',
+  '下载已取消。': 'Download cancelled.',
+  '此 Release 没有可识别的 Windows 安装包或便携包。': 'No recognizable Windows installer or portable package is available in this release.',
+  '文件 SHA-256 校验失败，已删除下载文件。': 'The file failed SHA-256 verification and was deleted.',
+  '重命名': 'Rename',
+  '确定': 'OK',
+  '确认删除？': 'Confirm deletion?',
+  '删除': 'Delete',
+  '新建文件夹': 'New folder',
+  '创建': 'Create',
+  '上一级': 'Parent folder',
+  '选择目录': 'Choose folder',
+  '复制到…': 'Copy to…',
+  '移动到…': 'Move to…',
+  '当前目录项目较多，仅显示前 1,200 项；可使用搜索缩小范围。': 'This folder contains many items. Showing the first 1,200; use search to narrow the results.',
+  '此目录为空，或没有匹配的文件。': 'This folder is empty or no files match.',
+  '确认清理临时文件？': 'Confirm temporary-file cleanup?',
+  '确认清理': 'Confirm cleanup',
+  '安全临时文件清理': 'Safe temporary-file cleanup',
+  '扫描当前用户 TEMP/TMP 与 Windows Temp 目录，只列出 24 小时以前的普通文件。不会触碰个人文档、下载目录、注册表或系统组件存储。': 'Scans the current user TEMP/TMP and Windows Temp folders and lists ordinary files older than 24 hours. Personal documents, Downloads, the registry, and system component stores are not touched.',
+  '扫描临时文件': 'Scan temporary files',
+  'Windows 存储设置': 'Windows storage settings',
+  '扫描状态': 'Scan status',
+  '待清理项目预览': 'Cleanup preview',
+  '本地 SHA-256 指纹库': 'Local SHA-256 signature database',
+  '导入指纹库': 'Import signature database',
+  '选择扫描目录': 'Choose scan folder',
+  '本地指纹扫描': 'Local signature scan',
+  '通过 Microsoft Defender 官方 PowerShell cmdlet 发起所选目录的自定义扫描。启动时会显示 UAC 提权提示；扫描结果请以 Windows 安全中心的保护历史记录为准。': 'Starts a custom scan of the selected folder using Microsoft Defender official PowerShell cmdlets. UAC appears at launch; consult Windows Security Protection History for results.',
+  '重要说明：内置特征目前包含 EICAR 测试指纹，用于验证检测链路，不是完整恶意软件库。指纹未命中不等于文件安全；请以 Defender 等专业引擎结果为准。': 'Important: the built-in signatures currently include the EICAR test signature to verify the detection path; this is not a complete malware database. A clean signature scan does not prove a file is safe. Use Defender or another professional engine.',
+  '重新扫描硬件设备需要提升权限。继续后 Windows 将显示 UAC 确认窗口。': 'Rescanning hardware devices requires elevation. Windows will show a UAC confirmation prompt.',
+  '安装驱动？': 'Install driver?',
+  '以管理员身份打开设备管理器？': 'Open Device Manager as administrator?',
+  '继续': 'Continue',
+  '刷新驱动清单': 'Refresh driver list',
+  '安装 INF 驱动': 'Install INF driver',
+  '管理员设备管理器': 'Device Manager (administrator)',
+  '尚无驱动清单。点击“刷新驱动清单”读取 Windows 当前已安装的签名驱动。': 'No driver list yet. Select “Refresh driver list” to read the signed drivers currently installed in Windows.',
+  '驱动安装会调用 Windows pnputil 并显示 UAC。此页不提供未经验证的第三方驱动包，也不会自动替换当前驱动。': 'Driver installation uses Windows pnputil and displays UAC. This page does not provide unverified third-party driver packages or automatically replace existing drivers.',
+  '尚未检查': 'Not checked yet',
+  '正在检查更新…': 'Checking for updates…',
+  '当前已是最新版本': 'You are up to date',
+  '发现新版本：': 'New version found: ',
+  '检查失败：': 'Update check failed: ',
+  '下载失败：': 'Download failed: ',
+  '在文件夹中显示': 'Show in folder',
+  '选择保存位置': 'Choose save location',
+  'GNU GPL-3.0-only': 'GNU GPL-3.0-only',
+  '退出前关闭 aria2 失败：': 'Failed to stop aria2 before exit: ',
+  '无法创建系统托盘图标：': 'Could not create the system tray icon: ',
+  '系统信息读取失败：': 'Could not read system information: ',
+  '已验证发布者：': 'Verified publisher: ',
+  '1. 从微软下载并运行 ODT 自解压程序。  2. 选择解压目录中的 setup.exe。  3. 生成官方 configuration.xml 并运行部署。': '1. Download and run the ODT self-extractor from Microsoft.  2. Select setup.exe in the extracted folder.  3. Generate the official configuration.xml and run deployment.',
+  '设备管理器将以管理员身份启动，以便执行驱动和设备更改。Windows 将显示 UAC 确认窗口。': 'Device Manager will start as administrator so you can make driver and device changes. Windows will display a UAC confirmation prompt.',
+  'UTF-8 字节数：': 'UTF-8 bytes: ',
+  '设置尚未保存': 'Settings have not been saved',
+  '当前设置有未保存的更改。离开前要如何处理？': 'There are unsaved settings changes. What would you like to do before leaving?',
+  '继续编辑': 'Continue editing',
+  '放弃修改': 'Discard changes',
+  '保存并离开': 'Save and leave',
+  'theme': 'theme',
+  '主题和背景会立即预览，但不会自动保存；离开本页时会询问保存或放弃。': 'Theme and background changes are previewed immediately but are not saved automatically. You will be asked to save or discard them when leaving this page.',
+  '关闭时最小化到系统托盘（保留后台下载）': 'Minimize to the system tray when closing (keep downloads running)',
+  '默认关闭窗口会退出应用并关闭 aria2；启用后会隐藏到托盘并继续下载': 'By default, closing the window exits the app and stops aria2. When enabled, the app hides to the tray and downloads continue.',
+  '无法打开存储设置：': 'Could not open Storage settings: ',
+  '读取失败或无权限：': 'Read failed or access denied: ',
+  '另有 ': 'Plus ',
+  '已扫描 ': 'Scanned ',
+  '将通过 Windows pnputil 安装此 INF，并请求 Windows UAC 管理员授权：': 'Windows pnputil will install this INF and request administrator approval through UAC:',
+  '驱动安装、卸载和设备更改通常需要管理员权限。Windows 将显示 UAC 确认窗口。': 'Driver installation, removal, and device changes usually require administrator privileges. Windows will display a UAC confirmation prompt.',
+  '已安装驱动 · ': 'Installed drivers · ',
+  '无法打开系统工具：': 'Could not open system tool: ',
+  '无法打开图片来源：': 'Could not open image source: ',
+  '保存失败：': 'Save failed: ',
+  '检测完成 · ': 'Test complete · ',
+  '版本 ': 'Version ',
+  '本地版本高于 GitHub 最新发布版本': 'The local build is newer than the latest GitHub release',
+  '下载此发布版': 'Download this release',
+  '仅扫描 Windows 临时目录中的旧文件；不会自动清理下载、桌面或文档。': 'Scans old files in Windows temporary folders only. Downloads, Desktop, and Documents are never cleaned automatically.',
+  'C 盘临时目录清理仅支持 Windows。': 'C drive temporary-folder cleanup is only available on Windows.',
+  '正在扫描临时文件…': 'Scanning temporary files…',
+  '正在清理…': 'Cleaning up…',
+  '载入本地 SHA-256 指纹库…': 'Loading local SHA-256 signature database…',
+  '正在载入…': 'Loading…',
+  '正在逐文件计算 SHA-256…': 'Calculating SHA-256 for each file…',
+  '正在请求管理员权限并调用 Microsoft Defender…': 'Requesting administrator permission and starting Microsoft Defender…',
+  'Microsoft Defender 扫描仅支持 Windows。': 'Microsoft Defender scanning is only available on Windows.',
+  'Defender 扫描命令已完成。': 'The Defender scan command completed.',
+  '正在请求管理员权限并重新扫描设备…': 'Requesting administrator permission and rescanning devices…',
+  'Windows 已完成硬件重新扫描。': 'Windows completed the hardware rescan.',
+  'pnputil 已完成驱动安装命令。建议重启后检查设备管理器状态。': 'pnputil completed the driver installation command. Restart and check Device Manager.',
+  '驱动清单仅支持 Windows。': 'The driver list is available on Windows only.',
+  '已达到 50,000 项安全上限，请分批处理。': 'The 50,000-item safety limit was reached. Process items in batches.',
+  '此操作将通过 Windows 用户账户控制请求管理员确认，把你提供的密钥提交给 Windows 授权服务并尝试在线激活。密钥不会保存在本应用设置中。请只使用你有权使用的正版密钥。': 'This action requests administrator approval through Windows User Account Control, submits the key you provide to the Windows licensing service, and attempts online activation. The key is not saved in app settings. Only use a genuine key you are authorized to use.',
+  '无效的 SHA-256 指纹': 'Invalid SHA-256 signature',
+  '许可': 'License',
 };
 
 String translateText(BuildContext context, String value) {
   if (Localizations.localeOf(context).languageCode != 'en') return value;
   final direct = _english[value];
   if (direct != null) return direct;
+  final cleanupMatch = RegExp(
+    r'^将尝试删除 (.+?) 个超过 24 小时的临时文件，预计释放 (.+?)。被系统占用或权限不足的文件会自动跳过。',
+  ).firstMatch(value);
+  if (cleanupMatch != null) {
+    return 'Attempts to delete ${cleanupMatch[1]} temporary files older than 24 hours, '
+        'freeing about ${cleanupMatch[2]}. Files in use or without permission are skipped.';
+  }
+  if (value.endsWith(' 已复制')) {
+    return value.replaceFirst(' 已复制', ' copied');
+  }
+  if (value.startsWith('发现新版本：')) return value.replaceFirst('发现新版本：', 'Update available: ');
+  if (value.startsWith('检查失败：')) return value.replaceFirst('检查失败：', 'Update check failed: ');
+  if (value.startsWith('下载失败：')) return value.replaceFirst('下载失败：', 'Download failed: ');
   if (value.startsWith('aria2 已连接 · ')) {
     return value.replaceFirst('aria2 已连接 · ', 'aria2 connected · ');
   }
@@ -525,5 +717,53 @@ String translateText(BuildContext context, String value) {
   if (value.startsWith('大小 ')) {
     return value.replaceFirst('大小 ', 'Size ');
   }
+  if (value.startsWith('版本 ')) return value.replaceFirst('版本 ', 'Version ');
+  if (value.startsWith('系统信息读取失败：')) return value.replaceFirst('系统信息读取失败：', 'Could not read system information: ');
+  if (value.startsWith('无法打开系统工具：')) return value.replaceFirst('无法打开系统工具：', 'Could not open system tool: ');
+  if (value.startsWith('无法打开图片来源：')) return value.replaceFirst('无法打开图片来源：', 'Could not open image source: ');
+  if (value.startsWith('无法打开存储设置：')) return value.replaceFirst('无法打开存储设置：', 'Could not open Storage settings: ');
+  if (value.startsWith('读取失败或无权限：')) return value.replaceFirst('读取失败或无权限：', 'Read failed or access denied: ');
+  if (value.startsWith('已扫描 ')) return value.replaceFirst('已扫描 ', 'Scanned ');
+  if (value.startsWith('已安装驱动 · ')) return value.replaceFirst('已安装驱动 · ', 'Installed drivers · ');
+  if (value.startsWith('检测完成 · ')) return value.replaceFirst('检测完成 · ', 'Test complete · ');
+  if (value.startsWith('UTF-8 字节数：')) return value.replaceFirst('UTF-8 字节数：', 'UTF-8 bytes: ');
+  if (value.startsWith('退出前关闭 aria2 失败：')) return value.replaceFirst('退出前关闭 aria2 失败：', 'Failed to stop aria2 before exit: ');
+  if (value.startsWith('无法创建系统托盘图标：')) return value.replaceFirst('无法创建系统托盘图标：', 'Could not create the system tray icon: ');
+  if (value.startsWith('保存失败：')) return value.replaceFirst('保存失败：', 'Save failed: ');
+  if (value.startsWith('无法打开 Windows 激活设置：')) return value.replaceFirst('无法打开 Windows 激活设置：', 'Could not open Windows activation settings: ');
+  if (value.startsWith('已验证发布者：')) return value.replaceFirst('已验证发布者：', 'Verified publisher: ');
+  if (value.startsWith('文件夹 · ')) return value.replaceFirst('文件夹 · ', 'Folder · ');
+  if (value.startsWith('本地版本高于 GitHub 最新发布版本')) return 'The local build is newer than the latest GitHub release';
+  if (value.startsWith('无法读取此目录：')) return value.replaceFirst('无法读取此目录：', 'Could not read this folder: ');
+  if (value.startsWith('本地指纹库载入失败：')) return value.replaceFirst('本地指纹库载入失败：', 'Could not load local signature database: ');
+  if (value.startsWith('本地扫描失败：')) return value.replaceFirst('本地扫描失败：', 'Local scan failed: ');
+  if (value.startsWith('设备信息读取失败：')) return value.replaceFirst('设备信息读取失败：', 'Could not read device information: ');
+  if (value.startsWith('设备扫描未能完成：')) return value.replaceFirst('设备扫描未能完成：', 'Device scan did not complete: ');
+  if (value.startsWith('驱动安装未能确认成功：')) return value.replaceFirst('驱动安装未能确认成功：', 'Could not confirm driver installation: ');
+  if (value.startsWith('无法打开系统设置：')) return value.replaceFirst('无法打开系统设置：', 'Could not open System Settings: ');
+  if (value.startsWith('Defender 扫描未能确认完成：')) return value.replaceFirst('Defender 扫描未能确认完成：', 'Could not confirm Defender scan completion: ');
+  if (value.startsWith('已载入 ') && value.contains(' 条指纹')) return value.replaceAll('已载入 ', 'Loaded ').replaceAll(' 条指纹', ' signatures');
+  if (value.startsWith('本地库已载入 ')) return value.replaceFirst('本地库已载入 ', 'Local database loaded: ').replaceAll(' 条指纹。', ' signatures.');
+  if (value.startsWith('已导入并保存 ')) return value.replaceFirst('已导入并保存 ', 'Imported and saved ').replaceAll(' 条指纹；当前共 ', ' signatures; ').replaceAll(' 条。', ' total.');
+  if (value.startsWith('没有找到有效的 SHA-256 指纹。')) return 'No valid SHA-256 signatures were found. Each row must contain a 64-character hash, a space, and a name.';
+  if (value.startsWith('扫描完成：')) return value.replaceFirst('扫描完成：', 'Scan complete: ').replaceAll(' 个超过 24 小时的临时文件，约 ', ' temporary files older than 24 hours, about ').replaceAll('。已达到 50,000 项安全上限，请分批处理。', '. The 50,000-item safety limit was reached; process items in batches.').replaceAll('。', '.');
+  if (value.startsWith('已删除 ')) return value.replaceFirst('已删除 ', 'Deleted ').replaceAll(' 个文件，释放 ', ' files, freed ').replaceAll('；跳过 ', '; skipped ').replaceAll(' 个占用或无权限文件。', ' files in use or without permission.');
+  if (value.startsWith('读取到 ') && value.contains(' 条设备驱动记录')) return value.replaceFirst('读取到 ', 'Read ').replaceAll(' 条设备驱动记录（最多展示 100 条）。', ' device-driver records (up to 100 shown).');
+  if (value.startsWith('已扫描 ') && value.contains(' 个文件 · 跳过 ')) return value.replaceFirst('已扫描 ', 'Scanned ').replaceAll(' 个文件 · 跳过 ', ' files · skipped ').replaceAll(' 个', '');
+  if (value.startsWith('另有 ') && value.endsWith(' 项未展开')) return value.replaceFirst('另有 ', '').replaceFirst(' 项未展开', ' more items not shown');
+  if (value.startsWith('读取失败或无权限：')) return value.replaceFirst('读取失败或无权限：', 'Read failed or access denied: ').replaceAll(' 项', ' items');
+  if (value.startsWith('将通过 Windows pnputil 安装此 INF')) {
+    return value.replaceFirst('将通过 Windows pnputil 安装此 INF，并请求 Windows UAC 管理员授权：', 'Windows pnputil will install this INF and request administrator approval through UAC:');
+  }
+  if (value.startsWith('驱动安装、卸载和设备更改通常需要管理员权限。')) return 'Driver installation, removal, and device changes usually require administrator privileges. Windows will display a UAC confirmation prompt.';
+  if (value.endsWith(' 已复制')) return value.replaceFirst(' 已复制', ' copied');
+  if (value.startsWith('已验证发布者：')) {
+    return value.replaceFirst('已验证发布者：', 'Verified publisher: ')
+      .replaceAll('。接下来会请求 Windows UAC 管理员授权并启动微软官方 ODT 自解压程序，请在它的窗口中接受许可并选择解压目录。', '. Windows will next request administrator approval through UAC and launch the official Microsoft ODT self-extractor. Accept its license and choose an extraction folder.')
+      .replaceAll('。将请求 Windows UAC 管理员授权，通过 ', '. Windows will request administrator approval through UAC and use ')
+      .replaceAll(' 执行 Office 部署；请确认你拥有所选版本的合法许可证。', ' to deploy Office. Confirm you have a valid license for the selected edition.');
+  }
+  if (value.startsWith('检测完成 · ') && value.endsWith(' 秒')) return value.replaceFirst('检测完成 · ', 'Test complete · ').replaceFirst(' 秒', ' s');
+  if (value.startsWith('本地版本高于 GitHub 最新发布版本')) return 'The local build is newer than the latest GitHub release';
   return value;
 }
