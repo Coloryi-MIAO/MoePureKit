@@ -1,0 +1,167 @@
+{
+  "version": 4,
+  "updated_at": "2026-10-31",
+  "categories": [
+    {
+      "id": "dev-text",
+      "name": "开发与文本",
+      "items": [
+        {
+          "id": "notepad-plus-plus",
+          "name": "Notepad++",
+          "description": "轻量级代码与文本编辑器，语法高亮丰富，启动极快",
+          "version": "8.9.8",
+          "download_url": "https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v8.9.8/npp.8.9.8.Installer.x64.exe",
+          "tags": ["编辑器", "文本", "开源", "必装"]
+        },
+        {
+          "id": "typora",
+          "name": "Typora",
+          "description": "极简 Markdown 编辑器，所见即所得，专注写作体验",
+          "version": "1.14.10",
+          "download_url": "https://downloads.typora.io/windows/typora-setup-x64-1.14.10.exe",
+          "tags": ["Markdown", "写作", "极简"]
+        },
+        {
+          "id": "screentogif",
+          "name": "ScreenToGif",
+          "description": "开源屏幕录制与 GIF 编辑工具，支持摄像头、画板和白板录制",
+          "version": "2.43.2",
+          "download_url": "https://github.com/NickeManarin/ScreenToGif/releases",
+          "homepage": "https://github.com/NickeManarin/ScreenToGif/releases",
+          "tags": ["录屏", "GIF", "开源"]
+        }
+      ]
+    },
+    {
+      "id": "security",
+      "name": "系统与安全",
+      "items": [
+        {
+          "id": "huorong",
+          "name": "火绒安全",
+          "description": "国产轻量安全软件，安静无弹窗，拦截广告与恶意软件",
+          "version": "6.0.12.1",
+          "download_url": "https://www.huorong.cn/person6.html",
+          "homepage": "https://www.huorong.cn/",
+          "tags": ["安全", "杀毒", "免费", "无广告"]
+        }
+      ]
+    },
+    {
+      "id": "office-productivity",
+      "name": "办公与效率",
+      "items": [
+        {
+          "id": "wps",
+          "name": "WPS Office",
+          "description": "国产办公套件，兼容 Office 格式，免费版覆盖文档、表格、演示",
+          "download_url": "https://wdl1.pcfg.cache.wpscdn.com/wpsdl/wpsoffice/download/12.2.0.21179/500.1001/WPSOffice_12.2.0.21179.exe",
+          "homepage": "https://www.wps.cn/",
+          "tags": ["办公", "文档", "表格", "免费"]
+        }
+      ]
+    },
+    {
+      "id": "media-entertainment",
+      "name": "影音娱乐",
+      "items": [
+        {
+          "id": "netease-cloud-music",
+          "name": "网易云音乐",
+          "description": "音乐播放与发现平台，歌单生态与评论区文化独特",
+          "version": "3.1.40.205461",
+          "download_url": "https://d8.music.126.net/dmusic2/NeteaseCloudMusic_Music_official_3.1.40.205461_64.exe",
+          "tags": ["音乐", "播放器", "歌单"]
+        },
+        {
+          "id": "qqmusic",
+          "name": "QQ音乐",
+          "description": "腾讯旗下音乐平台，正版曲库庞大，支持无损与杜比音效",
+          "version": "22.76",
+          "download_url": "https://c.y.qq.com/cgi-bin/file_redirect.fcg?bid=dldir&file=ecosfile%2Fmusic_clntupate%2Fpc%2Fother%2FQQMusic_Setup_2222.exe&sign=1-b8b7717ca56925682c96630879508d7f0868b3ee8999d33a7db7e19299adf01b-69eb199f",
+          "tags": ["音乐", "播放器", "腾讯"]
+        }
+      ]
+    },
+    {
+      "id": "communication",
+      "name": "通讯与社交",
+      "items": [
+        {
+          "id": "wecom",
+          "name": "企业微信",
+          "description": "腾讯企业通讯与办公工具，与微信互通，支持审批、打卡、会议",
+          "version": "5.0.12.6018",
+          "download_url": "https://dldir1.qq.com/wework/work_weixin/WeCom_5.0.12.6018.exe",
+          "tags": ["企业通讯", "办公", "腾讯"]
+        },
+        {
+          "id": "dingtalk",
+          "name": "钉钉",
+          "description": "阿里旗下企业协同平台，覆盖考勤、审批、视频会议与文档协作",
+          "download_url": "https://dtapp-pub.dingtalk.com/dingtalk-desktop/win_installer/Release/DingTalk_v7.5.30.5179102.exe",
+          "homepage": "https://www.dingtalk.com/",
+          "tags": ["企业通讯", "协同办公", "阿里"]
+        }
+      ]
+    },
+    {
+      "id": "privacy",
+      "name": "隐私与密码",
+      "items": [
+        {
+          "id": "bitwarden",
+          "name": "Bitwarden",
+          "description": "开源密码管理器，端到端加密，支持跨平台同步与自托管",
+          "version": "2026.10.1",
+          "download_url": "https://github.com/bitwarden/clients/releases/download/desktop-v2026.10.1/Bitwarden-Portable-2026.10.1.exe",
+          "homepage": "https://bitwarden.com/download/",
+          "tags": ["密码管理", "开源", "加密", "隐私"]
+        }
+      ]
+    },
+    {
+      "id": "game-platform",
+      "name": "游戏平台",
+      "items": [
+        {
+          "id": "steam",
+          "name": "Steam",
+          "description": "全球最大的 PC 游戏平台，游戏库、社区、创意工坊一站式",
+          "download_url": "https://store.steampowered.com/about/",
+          "homepage": "https://store.steampowered.com/about/",
+          "tags": ["游戏", "平台", "必装"]
+        }
+      ]
+    },
+    {
+      "id": "cloud-storage",
+      "name": "云存储",
+      "items": [
+        {
+          "id": "baidu-netdisk",
+          "name": "百度网盘",
+          "description": "国内主流云存储客户端，支持文件备份、分享与在线预览",
+          "download_url": "https://pan.baidu.com/download",
+          "homepage": "https://pan.baidu.com/download",
+          "tags": ["云盘", "存储", "分享"]
+        }
+      ]
+    },
+    {
+      "id": "download",
+      "name": "下载工具",
+      "items": [
+        {
+          "id": "xunlei",
+          "name": "迅雷",
+          "description": "老牌下载工具，支持 HTTP、FTP、BT 种子、磁力链接与 ED2K",
+          "version": "12.4.1.3670",
+          "download_url": "https://down.sandai.net/thunder11/XunLeiSetup12.4.1.3670.exe",
+          "tags": ["下载", "BT", "磁力", "迅雷"]
+        }
+      ]
+    }
+  ]
+}

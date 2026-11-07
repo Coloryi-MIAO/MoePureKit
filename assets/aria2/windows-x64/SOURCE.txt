@@ -1,0 +1,8 @@
+aria2 Windows x64 runtime
+Version: 1.37.0
+Upstream release: https://github.com/aria2/aria2/releases/tag/release-1.37.0
+Source archive: https://github.com/aria2/aria2/releases/download/release-1.37.0/aria2-1.37.0.tar.xz
+Windows x64 binary archive: https://github.com/aria2/aria2/releases/download/release-1.37.0/aria2-1.37.0-win-64bit-build1.zip
+Windows x64 archive SHA-256: 67D015301EEF0B612191212D564C5BB0A14B5B9C4796B76454276A4D28D9B288
+License: GPL-2.0-or-later; see COPYING.
+The release also includes OpenSSL licensing terms in LICENSE.OpenSSL.

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "entries": [
+    {
+      "sha256": "275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f",
+      "name": "EICAR 测试特征（非真实恶意软件）",
+      "type": "test-pattern",
+      "description": "仅用于验证本地 SHA-256 指纹匹配流程。该测试样本不是实际恶意软件，不代表完整病毒特征库。"
+    }
+  ]
+}

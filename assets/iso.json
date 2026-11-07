@@ -1,0 +1,107 @@
+{
+  "version": 2,
+  "updated_at": "2026-10-31",
+  "categories": [
+    {
+      "id": "windows-11-23h2",
+      "name": "Windows 11 23H2",
+      "items": [
+        {
+          "id": "win11-23h2-consumer-aug-2024-ed2k",
+          "name": "Windows 11 23H2 消费者版 (2024年8月更新)",
+          "description": "包含家庭版、专业版等，适合个人用户。ED2K链接。",
+          "version": "23H2 (Build 22631.4112)",
+          "size": "6.69 GB",
+          "download_url": "ed2k://|file|zh-cn_windows_11_consumer_editions_version_23h2_updated_aug_2024_x64_dvd_d3e1c088.iso|7178166272|ED43B22F44B3B3962BFC1B0065A4315B|/",
+          "sha256": "A37E819F2D2AA52D10B8890290E45799EE54A848BFEC439F4BD28437FE47841D",
+          "tags": ["Win11", "23H2", "消费者版", "ed2k"],
+          "source": "WinDiscover"
+        },
+        {
+          "id": "win11-23h2-consumer-aug-2024-magnet",
+          "name": "Windows 11 23H2 消费者版 (2024年8月更新) - 磁力",
+          "description": "同上版本的磁力链接，适合BT客户端。",
+          "version": "23H2 (Build 22631.4112)",
+          "size": "6.69 GB",
+          "download_url": "magnet:?xt=urn:btih:b8a4b4f3688739b8ef6618fd8320d34429e1ac05&dn=zh-cn_windows_11_consumer_editions_version_23h2_updated_aug_2024_x64_dvd_d3e1c088.iso&xl=7178166272",
+          "sha256": "A37E819F2D2AA52D10B8890290E45799EE54A848BFEC439F4BD28437FE47841D",
+          "tags": ["Win11", "23H2", "消费者版", "磁力"],
+          "source": "WinDiscover"
+        },
+        {
+          "id": "win11-23h2-business-aug-2024-ed2k",
+          "name": "Windows 11 23H2 商业版 (2024年8月更新)",
+          "description": "包含专业版、企业版、教育版等，适合企业或需要完整功能的用户。ED2K链接。",
+          "version": "23H2 (Build 22631.4112)",
+          "size": "6.59 GB",
+          "download_url": "ed2k://|file|zh-cn_windows_11_business_editions_version_23h2_updated_aug_2024_x64_dvd_6ca91c94.iso|7075129344|299D31DCFF10D9F0243EDDED3B8C49B7|/",
+          "sha256": "336E0D381CC3F2F543BF727A4F5BCFA9A10BBCAB9E5C1E579F2EC69CCB5CF6FB",
+          "tags": ["Win11", "23H2", "商业版", "ed2k"],
+          "source": "WinDiscover"
+        }
+      ]
+    },
+    {
+      "id": "windows-10-22h2",
+      "name": "Windows 10 22H2 (最终版)",
+      "items": [
+        {
+          "id": "win10-22h2-business-oct-2025-ed2k",
+          "name": "Windows 10 22H2 商业版 (2025年10月更新)",
+          "description": "Windows 10 最终功能版本，集成2025年10月更新，系统极其稳定。ED2K链接。",
+          "version": "22H2 (Build 19045)",
+          "size": "约 6.51 GB",
+          "download_url": "ed2k://|file|zh-cn_windows_10_business_editions_version_22h2_updated_oct_2025_x64_dvd_d4e92df7.iso|6985566208|B50B6640516921F413482D1D468690A7|/",
+          "tags": ["Win10", "22H2", "商业版", "ed2k"],
+          "source": "微信公众号 / wanbushu.com"
+        },
+        {
+          "id": "win10-22h2-consumer-oct-2025-ed2k",
+          "name": "Windows 10 22H2 消费者版 (2025年10月更新)",
+          "description": "Windows 10 最终功能版本，适合个人用户。ED2K链接。",
+          "version": "22H2 (Build 19045)",
+          "size": "约 6.68 GB",
+          "download_url": "ed2k://|file|zh-cn_windows_10_consumer_editions_version_22h2_updated_oct_2025_x64_dvd_38efd00d.iso|7168839680|C16CA4505649F9128F6F42A1DE2D7526|/",
+          "tags": ["Win10", "22H2", "消费者版", "ed2k"],
+          "source": "微信公众号 / wanbushu.com"
+        }
+      ]
+    },
+    {
+      "id": "windows-ltsc",
+      "name": "Windows LTSC 长期服务版",
+      "items": [
+        {
+          "id": "win11-ltsc-2024-ed2k",
+          "name": "Windows 11 Enterprise LTSC 2024",
+          "description": "微软官方长期服务通道版本，极度精简稳定，适合追求纯净和长期不折腾的用户。ED2K链接。",
+          "version": "LTSC 2024 (Build 26100)",
+          "size": "4.92 GB",
+          "download_url": "ed2k://|file|zh-cn_windows_11_enterprise_ltsc_2024_x64_dvd_cff9cd2d.iso|5287520256|D6E4FE0BA5FD8A2F22FC9C0326481791|/",
+          "tags": ["Win11", "LTSC", "纯净", "长期服务"],
+          "source": "LINUX DO / 萝卜头IT论坛"
+        },
+        {
+          "id": "win11-ltsc-2024-magnet",
+          "name": "Windows 11 Enterprise LTSC 2024 - 磁力",
+          "description": "同上版本的磁力链接。",
+          "version": "LTSC 2024 (Build 26100)",
+          "size": "4.92 GB",
+          "download_url": "magnet:?xt=urn:btih:b84e74c1dbcc88a02c5b24a6f84383f353a2e1dd&dn=zh-cn_windows_11_enterprise_ltsc_2024_x64_dvd_cff9cd2d.iso&xl=5287520256",
+          "tags": ["Win11", "LTSC", "纯净", "磁力"],
+          "source": "LINUX DO"
+        },
+        {
+          "id": "win10-ltsc-2021-ed2k",
+          "name": "Windows 10 Enterprise LTSC 2021",
+          "description": "Windows 10 时代的 LTSC 经典版本，支持周期长，很多“养老机”的首选。ED2K链接。",
+          "version": "LTSC 2021 (Build 19044)",
+          "size": "约 4.70 GB",
+          "download_url": "ed2k://|file|SW_DVD9_WIN_ENT_LTSC_2021_64BIT_ChnSimp_MLF_X22-84402.ISO|5044211712|1555B7DCA052B5958EE68DB58A42408D|/",
+          "tags": ["Win10", "LTSC", "纯净", "长期服务"],
+          "source": "微信公众号 (Windows 10 全版本镜像大全)"
+        }
+      ]
+    }
+  ]
+}
