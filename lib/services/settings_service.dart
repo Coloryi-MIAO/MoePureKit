@@ -35,6 +35,7 @@ class SettingsService {
     }
     return AppSettings(
       backgroundMode: mode,
+      catgirlWallpaperIndex: (prefs.getInt('${_prefix}catgirlWallpaperIndex') ?? 0).clamp(0, 7).toInt(),
       downloadDirectory: prefs.getString('${_prefix}downloadDirectory') ?? '',
       concurrentDownloads: prefs.getInt('${_prefix}concurrentDownloads') ?? 5,
       proxy: prefs.getString('${_prefix}proxy') ?? '',
@@ -76,6 +77,7 @@ class SettingsService {
     final prefs = await SharedPreferences.getInstance();
     await Future.wait([
       prefs.setString('${_prefix}background', settings.backgroundMode.name),
+      prefs.setInt('${_prefix}catgirlWallpaperIndex', settings.catgirlWallpaperIndex),
       prefs.setString(
         '${_prefix}downloadDirectory',
         settings.downloadDirectory,

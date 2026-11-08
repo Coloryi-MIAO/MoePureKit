@@ -130,7 +130,7 @@ class BingWallpaperService {
     final archiveResponse = await _client
         .get(
           archiveUri,
-          headers: const {'User-Agent': 'MoePureKit/0.3.5'},
+          headers: const {'User-Agent': 'MoePureKit/0.4.2'},
         )
         .timeout(const Duration(seconds: 12));
     if (archiveResponse.statusCode != HttpStatus.ok) {
@@ -154,7 +154,7 @@ class BingWallpaperService {
     final imageResponse = await _client
         .get(
           imageUri,
-          headers: const {'User-Agent': 'MoePureKit/0.3.5'},
+          headers: const {'User-Agent': 'MoePureKit/0.4.2'},
         )
         .timeout(const Duration(seconds: 25));
     if (imageResponse.statusCode != HttpStatus.ok) {

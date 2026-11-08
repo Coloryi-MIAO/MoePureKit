@@ -86,6 +86,26 @@ class _FileManagerPageState extends State<FileManagerPage> {
     }
   }
 
+  bool get _accessDenied {
+    final error = _error ?? '';
+    return error.contains('Access is denied') || error.contains('errno = 5') || error.contains('拒绝访问') || error.contains('Access denied');
+  }
+
+  Future<void> _openElevatedTerminal() async {
+    if (!Platform.isWindows) return;
+    final escapedPath = _path.replaceAll("'", "''");
+    final command = "Set-Location -LiteralPath '" + escapedPath + "'";
+    final encodedUtf16 = base64Encode(utf16le(command));
+    final parent = "Start-Process -FilePath 'powershell.exe' -Verb RunAs -ArgumentList @('-NoExit','-EncodedCommand','$encodedUtf16')";
+    try {
+      await Process.start('powershell.exe', ['-NoProfile', '-Command', parent], mode: ProcessStartMode.detached);
+    } catch (error) {
+      _notify('无法启动管理员终端：$error');
+    }
+  }
+
+  List<int> utf16le(String value) => value.codeUnits.expand((unit) => [unit & 0xff, (unit >> 8) & 0xff]).toList(growable: false);
+
   Future<void> _chooseDirectory() async {
     final path = await getDirectoryPath(initialDirectory: _path, confirmButtonText: '打开此文件夹');
     if (path != null && mounted) {
@@ -313,7 +333,29 @@ class _FileManagerPageState extends State<FileManagerPage> {
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
                 : _error != null
-                    ? Center(child: LocalizedText(_error!, style: const TextStyle(color: Color(0xFFB65F56))))
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(18),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              LocalizedText(_error!, style: const TextStyle(color: Color(0xFFB65F56)), textAlign: TextAlign.center),
+                              if (_accessDenied && Platform.isWindows) ...[
+                                const SizedBox(height: 10),
+                                OutlinedButton.icon(
+                                  onPressed: _openElevatedTerminal,
+                                  icon: const Icon(Icons.admin_panel_settings_outlined, size: 16),
+                                  label: const LocalizedText('以管理员身份打开终端'),
+                                ),
+                                const SizedBox(height: 5),
+                                const LocalizedText('受保护的系统目录建议跳过；仅在确有需要时通过 UAC 提权访问。', style: TextStyle(fontSize: 10, color: Color(0xFF858C86)), textAlign: TextAlign.center),
+                              ],
+                              const SizedBox(height: 8),
+                              TextButton.icon(onPressed: _load, icon: const Icon(Icons.refresh, size: 15), label: const LocalizedText('重试')),
+                            ],
+                          ),
+                        ),
+                      )
                     : filtered.isEmpty
                         ? const Center(child: LocalizedText('此目录为空，或没有匹配的文件。', style: TextStyle(color: Color(0xFF858C86))))
                         : ListView.separated(

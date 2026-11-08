@@ -1,4 +1,4 @@
-enum BackgroundMode { white, mica, bingMica }
+enum BackgroundMode { white, mica, bingMica, catgirl }
 
 enum AppLanguageMode { system, chinese, english }
 
@@ -7,6 +7,7 @@ enum AppThemeMode { system, light, dark }
 class AppSettings {
   const AppSettings({
     this.backgroundMode = BackgroundMode.white,
+    this.catgirlWallpaperIndex = 0,
     this.downloadDirectory = '',
     this.concurrentDownloads = 5,
     this.proxy = '',
@@ -26,6 +27,7 @@ class AppSettings {
   });
 
   final BackgroundMode backgroundMode;
+  final int catgirlWallpaperIndex;
   final String downloadDirectory;
   final int concurrentDownloads;
   final String proxy;
@@ -45,6 +47,7 @@ class AppSettings {
 
   AppSettings copyWith({
     BackgroundMode? backgroundMode,
+    int? catgirlWallpaperIndex,
     String? downloadDirectory,
     int? concurrentDownloads,
     String? proxy,
@@ -64,6 +67,7 @@ class AppSettings {
   }) {
     return AppSettings(
       backgroundMode: backgroundMode ?? this.backgroundMode,
+      catgirlWallpaperIndex: catgirlWallpaperIndex ?? this.catgirlWallpaperIndex,
       downloadDirectory: downloadDirectory ?? this.downloadDirectory,
       concurrentDownloads: concurrentDownloads ?? this.concurrentDownloads,
       proxy: proxy ?? this.proxy,

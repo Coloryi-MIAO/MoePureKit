@@ -1,6 +1,6 @@
 # MoePureKit 萌净工具箱
 
-一款面向 Windows 桌面的轻量工具箱，界面以清晰、克制和易用为目标。项目版本为 **0.3.5-beta.22**，作者 **Coloryi-MIAO**，版权 **© 2026 Coloryi-MIAO**。
+一款面向 Windows 桌面的轻量工具箱，界面以清晰、克制和易用为目标。项目版本为 **0.4.2**，作者 **Coloryi-MIAO**，版权 **© 2026 Coloryi-MIAO**。
 
 ## 功能一览
 
@@ -221,7 +221,7 @@ After replacing the project files, run `flutter clean`, remove the generated
 - 修复 Windows 原生磁盘性能采样中的宽字符空字符字面量：`L'\0'`，避免 MSVC C4066 在 `/WX` 下导致构建失败。
 
 
-## 更新下载与许可（0.3.5-beta.22）
+## 更新下载与许可（0.4.2）
 
 - 关于页面进入时检查 GitHub 最新 Release，应用运行期间每 6 小时自动检查一次，并支持手动检查。
 - 检测到新版本且 Release 含有可识别的 Windows 安装包时，会自动询问下载哪个包；同一 Release 在本次应用运行期间只提示一次，也可随时手动下载。
@@ -230,3 +230,13 @@ After replacing the project files, run `flutter clean`, remove the generated
 - 若 GitHub Release API 提供 SHA-256 digest，下载完成后自动校验；若未提供，会在界面提示用户按发布说明自行核对。
 - 不会静默运行安装程序。下载完成后，便携包可在资源管理器中定位；安装包需用户再次确认后才启动 Windows 安装程序。
 - 项目代码按 GNU GPL v3.0（GPL-3.0-only）发布，完整文本见 `LICENSE` / `COPYING`。第三方依赖、aria2、字体和资源仍遵循各自许可证。
+
+
+## 0.4.2
+
+- Added an offline catgirl wallpaper gallery with eight bundled wallpapers; the theme is opt-in.
+- Added URL-based JSON template import for system-resource and software catalogs (HTTP/HTTPS, 5 MiB limit).
+- Added a GitHub Star reminder shown at most once every 30 days, with a permanent opt-out.
+- Sized and centered the initial window against the primary display work area.
+- Added an elevated PowerShell terminal fallback when a protected directory cannot be read.
+- Project license: GNU GPL-3.0-only; see `LICENSE` and `COPYING`.

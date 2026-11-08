@@ -6,6 +6,8 @@ import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:window_manager/window_manager.dart';
@@ -29,6 +31,17 @@ import '../services/system_metrics_service.dart';
 import '../services/update_service.dart';
 import 'maintenance_pages.dart';
 import '../widgets/motion_settings.dart';
+
+const List<String> _catgirlWallpaperAssets = [
+  'assets/catgirl_wallpapers/0Iuew.jpg',
+  'assets/catgirl_wallpapers/A80WI.jpg',
+  'assets/catgirl_wallpapers/LDkYa.jpg',
+  'assets/catgirl_wallpapers/Miosf.jpg',
+  'assets/catgirl_wallpapers/NrU7o.jpg',
+  'assets/catgirl_wallpapers/pKY03.jpg',
+  'assets/catgirl_wallpapers/SmUmT.jpg',
+  'assets/catgirl_wallpapers/xg8qC.jpg',
+];
 
 enum AppPage {
   home('首页', Icons.home_outlined),
@@ -94,6 +107,8 @@ class _AppShellState extends State<AppShell>
   bool _trayInitialized = false;
   final Set<Aria2Service> _retiredServices = {};
   final Set<Timer> _serviceRetirementTimers = {};
+  Timer? _starReminderTimer;
+  bool _showStarNudge = false;
 
   @override
   void initState() {
@@ -111,6 +126,40 @@ class _AppShellState extends State<AppShell>
     });
     unawaited(_finishSplash());
     unawaited(_loadSettings());
+    _starReminderTimer = Timer(const Duration(seconds: 35), () => unawaited(_maybeShowStarReminder()));
+  }
+
+  Future<void> _maybeShowStarReminder() async {
+    if (!mounted) return;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.getBool('moepurekit.starReminderDisabled') ?? false) return;
+      // 用户确认已经 Star 后，永久跳过后续提醒。
+      if (prefs.getBool('moepurekit.starReminderAlreadyStarred') ?? false) return;
+      final last = prefs.getInt('moepurekit.starReminderLastShown') ?? 0;
+      final now = DateTime.now().millisecondsSinceEpoch;
+      // Reminder cadence: at most once every 7 days per installation.
+      // A missing timestamp means this installation has never shown it.
+      const interval = Duration(days: 7);
+      if (last > 0 && now - last < interval.inMilliseconds) return;
+      if (!mounted) return;
+      // Non-modal nudge: never steals focus or blocks the current workflow.
+      setState(() => _showStarNudge = true);
+      await prefs.setInt('moepurekit.starReminderLastShown', now);
+    } catch (_) {
+      // A reminder must never interfere with startup or background tasks.
+    }
+  }
+
+  Future<void> _dismissStarNudge({bool forever = false, bool alreadyStarred = false}) async {
+    if (mounted) setState(() => _showStarNudge = false);
+    if (forever || alreadyStarred) {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        if (forever) await prefs.setBool('moepurekit.starReminderDisabled', true);
+        if (alreadyStarred) await prefs.setBool('moepurekit.starReminderAlreadyStarred', true);
+      } catch (_) {}
+    }
   }
 
   Future<void> _finishSplash() async {
@@ -260,9 +309,13 @@ class _AppShellState extends State<AppShell>
     final preview = _settings.copyWith(
       themeMode: draft.themeMode,
       backgroundMode: draft.backgroundMode,
+      catgirlWallpaperIndex: draft.catgirlWallpaperIndex,
+      languageMode: draft.languageMode,
     );
     if (preview.themeMode == _settings.themeMode &&
-        preview.backgroundMode == _settings.backgroundMode) {
+        preview.backgroundMode == _settings.backgroundMode &&
+        preview.catgirlWallpaperIndex == _settings.catgirlWallpaperIndex &&
+        preview.languageMode == _settings.languageMode) {
       return;
     }
     setState(() => _settings = preview);
@@ -324,6 +377,7 @@ class _AppShellState extends State<AppShell>
           dark: dark,
         );
       case BackgroundMode.bingMica:
+      case BackgroundMode.catgirl:
         await Window.setEffect(
           effect: WindowEffect.acrylic,
           color: const Color(0xBFFFFFFF),
@@ -687,6 +741,7 @@ class _AppShellState extends State<AppShell>
 
   @override
   void dispose() {
+    _starReminderTimer?.cancel();
     if (Platform.isWindows) {
       windowManager.removeListener(this);
       trayManager.removeListener(this);
@@ -753,7 +808,8 @@ class _AppShellState extends State<AppShell>
                           compact: MediaQuery.sizeOf(context).width < 1020,
                           animationsEnabled: animationsEnabled,
                           bingWallpaper: _settings.backgroundMode ==
-                              BackgroundMode.bingMica,
+                                  BackgroundMode.bingMica ||
+                              _settings.backgroundMode == BackgroundMode.catgirl,
                           onSelected: _navigateTo,
                         ),
                       ),
@@ -811,6 +867,31 @@ class _AppShellState extends State<AppShell>
             ],
           ),
         ),
+        Positioned(
+          right: 24,
+          bottom: 24,
+          child: IgnorePointer(
+            ignoring: !_showStarNudge,
+            child: AnimatedSlide(
+              offset: _showStarNudge ? Offset.zero : const Offset(0, 0.12),
+              duration: const Duration(milliseconds: 260),
+              curve: Curves.easeOutCubic,
+              child: AnimatedOpacity(
+                opacity: _showStarNudge ? 1 : 0,
+                duration: const Duration(milliseconds: 220),
+                child: _StarNudge(
+                  onDismiss: () => unawaited(_dismissStarNudge()),
+                  onNever: () => unawaited(_dismissStarNudge(forever: true)),
+                  onAlreadyStarred: () => unawaited(_dismissStarNudge(alreadyStarred: true)),
+                  onStar: () async {
+                    await _dismissStarNudge();
+                    await _launchExternalUrl('https://github.com/Coloryi-MIAO/MoePureKit');
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
         if (_splashVisible)
           Positioned.fill(
             child: IgnorePointer(
@@ -866,12 +947,26 @@ class _AppShellState extends State<AppShell>
     final mode = _settings.backgroundMode;
     final dark = Theme.of(context).brightness == Brightness.dark;
     final useBingImage = mode == BackgroundMode.bingMica && _wallpaper != null;
+    final useCatgirlImage = mode == BackgroundMode.catgirl;
+    final catgirlIndex = _settings.catgirlWallpaperIndex.clamp(0, _catgirlWallpaperAssets.length - 1).toInt();
 
     return SizedBox.expand(
       child: Stack(
         fit: StackFit.expand,
         children: [
-          if (useBingImage)
+          if (useCatgirlImage)
+            Opacity(
+              opacity: dark ? 0.46 : 0.55,
+              child: Image.asset(
+                _catgirlWallpaperAssets[catgirlIndex],
+                key: ValueKey(_catgirlWallpaperAssets[catgirlIndex]),
+                fit: BoxFit.cover,
+                cacheWidth: 1920,
+                filterQuality: FilterQuality.low,
+                gaplessPlayback: true,
+              ),
+            )
+          else if (useBingImage)
             Opacity(
               // Keep the photo clearly visible, while a tint layer below
               // preserves contrast for translucent cards and sidebar labels.
@@ -902,7 +997,7 @@ class _AppShellState extends State<AppShell>
                         ? const Color(0xFFFAFBF9)
                         : const Color(0xDDF7F8F6)),
             ),
-          if (useBingImage)
+          if (useBingImage || useCatgirlImage)
             DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -1138,6 +1233,110 @@ class _PersistentPageSwitcherState extends State<_PersistentPageSwitcher>
     _transitionToken++;
     _controller.dispose();
     super.dispose();
+  }
+}
+
+class _StarNudge extends StatelessWidget {
+  const _StarNudge({
+    required this.onDismiss,
+    required this.onNever,
+    required this.onAlreadyStarred,
+    required this.onStar,
+  });
+
+  final VoidCallback onDismiss;
+  final VoidCallback onNever;
+  final VoidCallback onAlreadyStarred;
+  final VoidCallback onStar;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Material(
+      color: theme.colorScheme.surface.withValues(alpha: 0.97),
+      elevation: 12,
+      shadowColor: Colors.black.withValues(alpha: 0.18),
+      borderRadius: BorderRadius.circular(16),
+      clipBehavior: Clip.antiAlias,
+      child: Container(
+        width: 326,
+        decoration: BoxDecoration(
+          border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.55)),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        padding: const EdgeInsets.fromLTRB(15, 13, 12, 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: [
+              Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF6E927B).withValues(alpha: 0.13),
+                  borderRadius: BorderRadius.circular(9),
+                ),
+                child: const Icon(Icons.favorite_border_rounded, size: 17, color: Color(0xFF6E927B)),
+              ),
+              const SizedBox(width: 10),
+              const Expanded(
+                child: LocalizedText('喜欢 MoePureKit？', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
+              ),
+              IconButton(
+                tooltip: '关闭',
+                visualDensity: VisualDensity.compact,
+                iconSize: 17,
+                onPressed: onDismiss,
+                icon: const Icon(Icons.close_rounded),
+              ),
+            ]),
+            const Padding(
+              padding: EdgeInsets.only(left: 40, right: 4),
+              child: LocalizedText(
+                '如果它对你有帮助，欢迎在 GitHub 留下一颗 Star。完全自愿，不会影响使用。',
+                style: TextStyle(fontSize: 11.5, height: 1.45, color: Color(0xFF858C86)),
+              ),
+            ),
+            const SizedBox(height: 11),
+            Row(children: [
+              TextButton(
+                onPressed: onAlreadyStarred,
+                style: TextButton.styleFrom(visualDensity: VisualDensity.compact, foregroundColor: theme.colorScheme.onSurfaceVariant),
+                child: const LocalizedText('我已经点过了', style: TextStyle(fontSize: 11)),
+              ),
+              const Spacer(),
+              TextButton(
+                onPressed: onNever,
+                style: TextButton.styleFrom(visualDensity: VisualDensity.compact, foregroundColor: theme.colorScheme.onSurfaceVariant),
+                child: const LocalizedText('不再提示', style: TextStyle(fontSize: 11)),
+              ),
+            ]),
+            const SizedBox(height: 3),
+            Row(children: [
+              const Spacer(),
+              TextButton(
+                onPressed: onDismiss,
+                style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
+                child: const LocalizedText('稍后', style: TextStyle(fontSize: 11)),
+              ),
+              const SizedBox(width: 5),
+              FilledButton.icon(
+                onPressed: onStar,
+                style: FilledButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                  padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
+                  backgroundColor: const Color(0xFF668A73),
+                  foregroundColor: Colors.white,
+                ),
+                icon: const Icon(Icons.star_outline_rounded, size: 15),
+                label: const LocalizedText('前往 GitHub', style: TextStyle(fontSize: 11)),
+              ),
+            ]),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -2663,6 +2862,55 @@ class _DownloadTaskTile extends StatelessWidget {
   }
 }
 
+Future<String?> _askCatalogTemplateUrl(BuildContext context) async {
+  final controller = TextEditingController();
+  try {
+    return await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const LocalizedText('从网络导入模板'),
+        content: SizedBox(
+          width: 460,
+          child: TextField(
+            controller: controller,
+            autofocus: true,
+            keyboardType: TextInputType.url,
+            decoration: const InputDecoration(
+              labelText: '模板链接',
+              hintText: 'https://example.com/catalog.json',
+              border: OutlineInputBorder(),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(dialogContext), child: const LocalizedText('取消')),
+          FilledButton(onPressed: () => Navigator.pop(dialogContext, controller.text.trim()), child: const LocalizedText('导入')),
+        ],
+      ),
+    );
+  } finally {
+    controller.dispose();
+  }
+}
+
+Future<String> _downloadCatalogTemplate(String sourceUrl) async {
+  final uri = Uri.tryParse(sourceUrl.trim());
+  if (uri == null || !const {'http', 'https'}.contains(uri.scheme) || uri.host.isEmpty) {
+    throw const FormatException('请输入有效的 HTTP 或 HTTPS JSON 模板链接');
+  }
+  final response = await http.get(uri, headers: const {'Accept': 'application/json'}).timeout(const Duration(seconds: 30));
+  if (response.statusCode < 200 || response.statusCode >= 300) {
+    throw HttpException('HTTP ${response.statusCode}');
+  }
+  if (response.bodyBytes.length > 5 * 1024 * 1024) {
+    throw const FormatException('模板超过 5 MB 安全限制');
+  }
+  // Validate UTF-8 and JSON before passing the source to CatalogService.
+  final body = utf8.decode(response.bodyBytes, allowMalformed: false);
+  jsonDecode(body);
+  return body;
+}
+
 class _SystemPage extends StatefulWidget {
   const _SystemPage({super.key, required this.onSelectResource});
 
@@ -2720,6 +2968,25 @@ class _SystemPageState extends State<_SystemPage> {
     }
   }
 
+  Future<void> _importNetworkTemplate() async {
+    final url = await _askCatalogTemplateUrl(context);
+    if (url == null || url.trim().isEmpty) return;
+    setState(() { _loading = true; _error = null; });
+    try {
+      final source = await _downloadCatalogTemplate(url);
+      await _catalogService.saveSystem(source);
+      final items = await _catalogService.loadSystem();
+      if (mounted) {
+        setState(() { _items = items; _error = null; });
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: LocalizedText('网络模板导入成功')));
+      }
+    } catch (error) {
+      if (mounted) setState(() => _error = '网络模板导入失败：$error');
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
   Future<void> _openMicrosoftWindowsDownloads() async {
     try {
       await _launchExternalUrl(
@@ -2742,11 +3009,18 @@ class _SystemPageState extends State<_SystemPage> {
             eyebrow: 'RESOURCE CATALOG',
             title: '系统资源',
             subtitle: '资源清单可由维护者配置；应用不内置来源不明的系统镜像。',
-            trailing: OutlinedButton.icon(
-              onPressed: _editCatalog,
-              icon: const Icon(Icons.edit_outlined, size: 16),
-              label: const LocalizedText('编辑清单'),
-            ),
+            trailing: Wrap(spacing: 8, children: [
+              OutlinedButton.icon(
+                onPressed: _loading ? null : _importNetworkTemplate,
+                icon: const Icon(Icons.cloud_download_outlined, size: 16),
+                label: const LocalizedText('从网络导入模板'),
+              ),
+              OutlinedButton.icon(
+                onPressed: _editCatalog,
+                icon: const Icon(Icons.edit_outlined, size: 16),
+                label: const LocalizedText('编辑清单'),
+              ),
+            ]),
           ),
           const SizedBox(height: 18),
           _InfoCard(
@@ -3610,6 +3884,25 @@ class _SoftwarePageState extends State<_SoftwarePage> {
     }
   }
 
+  Future<void> _importNetworkTemplate() async {
+    final url = await _askCatalogTemplateUrl(context);
+    if (url == null || url.trim().isEmpty) return;
+    setState(() { _loading = true; _error = null; });
+    try {
+      final source = await _downloadCatalogTemplate(url);
+      await _catalogService.saveSoftware(source);
+      final items = await _catalogService.loadSoftware();
+      if (mounted) {
+        setState(() { _items = items; _error = null; });
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: LocalizedText('网络模板导入成功')));
+      }
+    } catch (error) {
+      if (mounted) setState(() => _error = '网络模板导入失败：$error');
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
   @override
   void dispose() {
     _search.dispose();
@@ -3642,11 +3935,18 @@ class _SoftwarePageState extends State<_SoftwarePage> {
             eyebrow: 'SOFTWARE CATALOG',
             title: '实用软件',
             subtitle: '按分类整理可信软件资源，清单与下载地址应由用户或维护者配置。',
-            trailing: OutlinedButton.icon(
-              onPressed: _editCatalog,
-              icon: const Icon(Icons.edit_outlined, size: 16),
-              label: const LocalizedText('编辑清单'),
-            ),
+            trailing: Wrap(spacing: 8, children: [
+              OutlinedButton.icon(
+                onPressed: _loading ? null : _importNetworkTemplate,
+                icon: const Icon(Icons.cloud_download_outlined, size: 16),
+                label: const LocalizedText('从网络导入模板'),
+              ),
+              OutlinedButton.icon(
+                onPressed: _editCatalog,
+                icon: const Icon(Icons.edit_outlined, size: 16),
+                label: const LocalizedText('编辑清单'),
+              ),
+            ]),
           ),
           const SizedBox(height: 18),
           TextField(
@@ -5853,6 +6153,7 @@ class _SettingsPageState extends State<_SettingsPage> {
 
   bool _settingsEqual(AppSettings a, AppSettings b) =>
       a.backgroundMode == b.backgroundMode &&
+      a.catgirlWallpaperIndex == b.catgirlWallpaperIndex &&
       a.downloadDirectory == b.downloadDirectory &&
       a.concurrentDownloads == b.concurrentDownloads &&
       a.proxy == b.proxy &&
@@ -6121,6 +6422,10 @@ class _SettingsPageState extends State<_SettingsPage> {
                       value: BackgroundMode.bingMica,
                       child: LocalizedText('Bing 每日壁纸 + 毛玻璃'),
                     ),
+                    DropdownMenuItem(
+                      value: BackgroundMode.catgirl,
+                      child: LocalizedText('猫娘模式 · 内置壁纸'),
+                    ),
                   ],
                   onChanged: (value) {
                     if (value != null) {
@@ -6128,6 +6433,52 @@ class _SettingsPageState extends State<_SettingsPage> {
                     }
                   },
                 ),
+                if (_draft.backgroundMode == BackgroundMode.catgirl) ...[
+                  const SizedBox(height: 10),
+                  const LocalizedText('选择猫娘壁纸', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: 118,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _catgirlWallpaperAssets.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 9),
+                      itemBuilder: (context, index) {
+                        final selected = _draft.catgirlWallpaperIndex == index;
+                        return InkWell(
+                          borderRadius: BorderRadius.circular(10),
+                          onTap: () => _updateDraft(
+                            _draft.copyWith(catgirlWallpaperIndex: index),
+                            previewAppearance: true,
+                          ),
+                          child: Container(
+                            width: 154,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: selected ? Theme.of(context).colorScheme.primary : Theme.of(context).dividerColor,
+                                width: selected ? 2 : 1,
+                              ),
+                            ),
+                            clipBehavior: Clip.antiAlias,
+                            child: Stack(fit: StackFit.expand, children: [
+                              Image.asset(_catgirlWallpaperAssets[index], fit: BoxFit.cover, cacheWidth: 360),
+                              if (selected) const Align(
+                                alignment: Alignment.topRight,
+                                child: Padding(
+                                  padding: EdgeInsets.all(6),
+                                  child: Icon(Icons.check_circle, color: Colors.white, shadows: [Shadow(blurRadius: 4, color: Colors.black54)]),
+                                ),
+                              ),
+                            ]),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  const LocalizedText('壁纸完全内置于应用，无需联网；选择后点击保存即可应用。', style: TextStyle(fontSize: 11, color: Color(0xFF858C86))),
+                ],
                 if (_draft.backgroundMode == BackgroundMode.bingMica) ...[
                   const SizedBox(height: 10),
                   Container(

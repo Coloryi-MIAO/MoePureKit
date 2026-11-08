@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:screen_retriever/screen_retriever.dart';
 
 import 'config/app_constants.dart';
 import 'models/app_settings.dart';
@@ -15,11 +16,17 @@ Future<void> main() async {
     await windowManager.ensureInitialized();
     await windowManager.setPreventClose(true);
     await Window.initialize();
-    const options = WindowOptions(
-      size: Size(1180, 760),
-      // Keep enough room for the full navigation while allowing compact
-      // layouts on smaller laptop screens. The Flutter tree adapts below.
-      minimumSize: Size(760, 520),
+    // Use the current primary display's work area, not a fixed desktop size.
+    // This avoids placing the initial window partly outside smaller displays.
+    final display = await screenRetriever.getPrimaryDisplay();
+    final workArea = display.visibleSize ?? display.size;
+    final initialWidth = (workArea.width * 0.90).clamp(320.0, 1180.0).toDouble();
+    final initialHeight = (workArea.height * 0.88).clamp(280.0, 760.0).toDouble();
+    final minWidth = (initialWidth * 0.72).clamp(280.0, 760.0).toDouble();
+    final minHeight = (initialHeight * 0.70).clamp(240.0, 520.0).toDouble();
+    final options = WindowOptions(
+      size: Size(initialWidth, initialHeight),
+      minimumSize: Size(minWidth, minHeight),
       center: true,
       backgroundColor: Colors.transparent,
       titleBarStyle: TitleBarStyle.hidden,
@@ -56,7 +63,8 @@ class _MyAppState extends State<MyApp> {
       AppLanguageMode.english => const Locale('en'),
     };
     final bingWallpaperEnabled =
-        _settings.backgroundMode == BackgroundMode.bingMica;
+        _settings.backgroundMode == BackgroundMode.bingMica ||
+        _settings.backgroundMode == BackgroundMode.catgirl;
     return MaterialApp(
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,

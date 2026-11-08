@@ -62,6 +62,41 @@ class LocalizedText extends StatelessWidget {
 
 
 const Map<String, String> _english = {
+  '支持 MoePureKit': 'Support MoePureKit',
+  '如果 MoePureKit 对你有帮助，欢迎前往 GitHub 点亮 Star。这个提示最多每 30 天显示一次。': 'If MoePureKit is useful to you, consider starring it on GitHub. This reminder appears at most once every 30 days.',
+  '以管理员身份打开终端': 'Open terminal as administrator',
+  '受保护的系统目录建议跳过；仅在确有需要时通过 UAC 提权访问。': 'Protected system folders should normally be skipped. Use UAC elevation only when access is necessary.',
+  '请输入有效的 HTTP 或 HTTPS JSON 模板链接': 'Enter a valid HTTP or HTTPS JSON template URL',
+  '模板超过 5 MB 安全限制': 'Template exceeds the 5 MB safety limit',
+  '猫娘模式 · 内置壁纸': 'Catgirl mode · built-in wallpapers',
+  '选择猫娘壁纸': 'Choose a catgirl wallpaper',
+  '壁纸完全内置于应用，无需联网；选择后点击保存即可应用。': 'Wallpapers are bundled with the app and work offline. Select one and save to apply it.',
+  '猫娘模式': 'Catgirl mode',
+  '发现新版本': 'Update available',
+  '读取失败': 'Read failed',
+  '读取 CPU、内存与磁盘状态…': 'Reading CPU, memory and disk status…',
+  '磁盘活动暂不可用': 'Disk activity is currently unavailable',
+  '权限不足': 'Access denied',
+  '以管理员身份重新打开': 'Reopen as administrator',
+  '跳过无权限的系统目录': 'Skip protected system folders',
+  '从网络导入模板': 'Import template from URL',
+  '模板链接': 'Template URL',
+  '导入': 'Import',
+  '正在下载并解析模板…': 'Downloading and parsing template…',
+  '网络模板导入成功': 'Network template imported',
+  'GitHub Star 提示': 'GitHub Star reminder',
+  '如果 MoePureKit 对你有帮助，欢迎前往 GitHub 点亮 Star。': 'If MoePureKit is useful to you, consider starring it on GitHub.',
+  '永久关闭此提示': 'Never show this reminder again',
+  '稍后再说': 'Maybe later',
+  '前往 GitHub 点 Star': 'Star on GitHub',
+  '喜欢 MoePureKit？': 'Enjoying MoePureKit?',
+  '如果它对你有帮助，欢迎在 GitHub 留下一颗 Star。完全自愿，不会影响使用。': 'If it has been useful, consider leaving the project a star on GitHub. It is entirely optional and never affects the app.',
+  '不再提示': 'Don’t show again',
+  '我已经点过了': 'I have already starred it',
+  '稍后': 'Later',
+  '前往 GitHub': 'Visit GitHub',
+  '关闭': 'Close',
+  '窗口已根据当前屏幕自动调整大小': 'Window size was adjusted to fit the current screen',
   '首页': 'Home',
   '下载': 'Downloads',
   '文件管理': 'File manager',
@@ -434,7 +469,6 @@ const Map<String, String> _english = {
   '下载资源由用户配置并自行校验。请遵守软件许可、著作权和所在地区法律法规。': 'Download sources are user-configured and should be verified. Follow software licenses, copyright, and applicable laws.',
   '最小化': 'Minimize',
   '最大化 / 还原': 'Maximize / Restore',
-  '关闭': 'Close',
   'Microsoft 365 Apps': 'Microsoft 365 Apps',
   'Office LTSC 2024': 'Office LTSC 2024',
   'Office LTSC 2021': 'Office LTSC 2021',
@@ -702,6 +736,8 @@ String translateText(BuildContext context, String value) {
   if (value.startsWith('操作失败：')) {
     return value.replaceFirst('操作失败：', 'Operation failed: ');
   }
+  if (value.startsWith('网络模板导入失败：')) return value.replaceFirst('网络模板导入失败：', 'Could not import network template: ');
+  if (value.startsWith('无法启动管理员终端：')) return value.replaceFirst('无法启动管理员终端：', 'Could not start elevated terminal: ');
   if (value.startsWith('资源清单读取失败：')) {
     return value.replaceFirst('资源清单读取失败：', 'Could not load resource catalog: ');
   }
